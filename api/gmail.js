@@ -90,7 +90,12 @@ export default async function handler(req, res) {
   }
 
   // ── Everything else needs an authenticated account ──
-  const account = await resolveAccount(req);
+  let account = await resolveAccount(req);
+  // Compose can send from any connected account, not just the active one.
+  if (req.method === 'POST' && action === 'send' && body.account) {
+    const pick = (await getAccounts(req)).find(a => a.email === body.account);
+    if (pick) account = { ...pick, kind: pick.kind || 'google' };
+  }
   if (!account) return res.status(401).json({ error: 'Not signed in', needAuth: true });
 
   // Non-Gmail providers (iCloud, AOL, Yahoo) go through IMAP/SMTP.

@@ -388,6 +388,8 @@
   :root[data-theme="dark"] .msg-frame { box-shadow: 0 0 0 1px var(--line-2); }
   .msg-text { white-space: pre-wrap; word-break: break-word; font-size: 14.5px; line-height: 1.7; color: var(--text); }
   .msg-actions { display: flex; gap: 8px; margin-top: 28px; flex-wrap: wrap; }
+  .btn.ai-pill { color: var(--accent-text); border-color: var(--accent-ring); background: var(--accent-soft); }
+  .btn.ai-pill:hover { background: var(--accent-ring); }
 
   .reader-empty { flex: 1; display: grid; place-items: center; padding: 40px; }
   .reader-empty .state-art { width: 84px; height: 84px; border-radius: 26px; margin-bottom: 16px;
@@ -401,46 +403,128 @@
   /* ───────────────────────── COMPOSE ───────────────────────── */
   .compose {
     position: fixed; right: 24px; bottom: 0; z-index: 60; display: flex; flex-direction: column;
-    width: min(600px, calc(100vw - 48px)); height: min(640px, calc(100dvh - 40px));
+    width: min(640px, calc(100vw - 48px)); height: min(700px, calc(100dvh - 32px));
     background: var(--elev); border-radius: 16px 16px 0 0; box-shadow: var(--shadow-lg);
     animation: rise .24s var(--ease);
   }
-  .compose-head { display: flex; align-items: center; gap: 4px; height: 48px; padding: 0 8px 0 18px;
+  .compose[data-size="max"] {
+    top: 32px; bottom: 32px; left: 0; right: 0; margin: 0 auto; height: auto;
+    width: min(980px, calc(100vw - 64px)); border-radius: 18px; animation: pop .2s var(--ease);
+  }
+  .compose[data-size="min"] { width: 340px; height: auto; animation: none; }
+  .compose[data-size="min"] > :not(.compose-head) { display: none !important; }
+  .compose[data-size="min"] .compose-head { cursor: pointer; border-bottom: 0; }
+  .compose-scrim { position: fixed; inset: 0; z-index: 59; background: var(--scrim); animation: fade .15s ease; }
+
+  .compose-head { display: flex; align-items: center; gap: 2px; height: 48px; padding: 0 8px 0 18px;
     border-bottom: 1px solid var(--line); flex-shrink: 0; }
-  .compose-head h2 { flex: 1; font-size: 14px; font-weight: 650; }
-  .cf { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px 0 18px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
-  .cf label { width: 56px; flex-shrink: 0; font-size: 13px; color: var(--text-3); }
-  .cf input { flex: 1; min-width: 0; height: 43px; background: none; border: 0; outline: none; }
-  .cf input::placeholder, .compose textarea::placeholder { color: var(--text-3); }
-  .cf .toggles { display: flex; gap: 2px; }
+  .compose-head h2 { font-size: 14px; font-weight: 650; min-width: 0; }
+  .draft-state { font-size: 12px; color: var(--text-3); margin-left: 10px; white-space: nowrap; }
+  .compose-head .spacer { flex: 1; }
+
+  .cf { position: relative; display: flex; align-items: flex-start; gap: 8px; min-height: 44px;
+    padding: 0 10px 0 18px; border-bottom: 1px solid var(--line); flex-shrink: 0; }
+  .cf > label { width: 58px; flex-shrink: 0; font-size: 13px; color: var(--text-3); line-height: 44px; }
+  .cf > input { flex: 1; min-width: 0; height: 43px; background: none; border: 0; outline: none; }
+  .cf > input::placeholder, .chips input::placeholder, #c-body::placeholder { color: var(--text-3); }
+  .cf select { flex: 1; min-width: 0; height: 43px; background: none; border: 0; outline: none; color: var(--text); cursor: pointer; }
+  .cf select option { background: var(--elev); color: var(--text); }
+  .cf .toggles { display: flex; gap: 2px; height: 44px; align-items: center; }
   .cf .toggles button { font-size: 12.5px; font-weight: 550; color: var(--text-3); padding: 4px 7px; border-radius: 6px; }
   .cf .toggles button:hover { color: var(--text); background: var(--hover); }
-  .compose textarea { flex: 1; min-height: 120px; padding: 16px 18px; background: none; border: 0; outline: none; resize: none; line-height: 1.65; font-size: 14.5px; }
-  .ai-toggle {
-    display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; margin-right: 4px;
-    border-radius: 999px; font-size: 12.5px; font-weight: 600; color: var(--accent-text);
-    background: var(--accent-soft); transition: background .15s, color .15s;
+  .cf .icon-btn { margin-top: 8px; }
+  .subject-ai { color: var(--accent-text); }
+  .subject-ai.busy .ic { animation: spin .9s linear infinite; }
+
+  .chips { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 8px 0; min-height: 44px; cursor: text; }
+  .chips input { flex: 1; min-width: 140px; height: 28px; border: 0; outline: none; background: none; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px; max-width: 100%; height: 28px; padding: 0 2px 0 4px;
+    border-radius: 999px; background: var(--active); font-size: 13px; font-weight: 500; cursor: default;
   }
-  .ai-toggle:hover, .ai-toggle[aria-expanded="true"] { background: var(--accent); color: #fff; }
-  .ai-bar { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px 12px 18px; flex-shrink: 0;
-    border-bottom: 1px solid var(--line); background: linear-gradient(180deg, var(--accent-soft), transparent); }
-  .ai-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
-  .ai-bar input, .ai-bar select {
-    height: 36px; border-radius: 9px; border: 1px solid var(--line-2); background: var(--input); outline: none;
-    transition: border-color .15s, box-shadow .15s;
+  .chip .avatar { --s: 20px; font-size: 9px; }
+  .chip-label { min-width: 0; }
+  .chip button { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; color: var(--text-3); flex-shrink: 0; }
+  .chip button:hover { background: var(--hover); color: var(--text); }
+  .chip.invalid { background: var(--danger-soft); color: var(--danger); padding-left: 8px; }
+  .chip.invalid button { color: var(--danger); }
+
+  .suggest { position: absolute; left: 70px; right: 10px; top: calc(100% - 2px); z-index: 6; padding: 4px;
+    background: var(--elev); border-radius: 12px; box-shadow: var(--shadow-lg); max-height: 280px; overflow-y: auto; }
+  .suggest-item { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 9px; cursor: pointer; }
+  .suggest-item.active, .suggest-item:hover { background: var(--hover); }
+  .suggest-item .s-meta { min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
+  .suggest-item .s-name { font-size: 13px; font-weight: 600; }
+  .suggest-item .s-email { font-size: 12px; color: var(--text-3); }
+
+  .compose-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  #c-body {
+    display: block; width: 100%; min-height: 160px; flex: 1 0 auto; padding: 16px 18px 10px; resize: none;
+    border: 0; outline: none; background: none; line-height: 1.65; font-size: 14.5px; overflow: hidden;
   }
-  .ai-bar input { flex: 1; min-width: 0; padding: 0 12px; }
-  .ai-bar input::placeholder { color: var(--text-3); }
-  .ai-bar select { padding: 0 8px; color: var(--text); cursor: pointer; }
-  .ai-bar input:focus, .ai-bar select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-  .ai-btn { height: 32px; padding: 0 12px; font-size: 13px; }
-  .ai-status { flex: 1; min-width: 0; font-size: 12.5px; color: var(--text-3); }
-  .ai-status.err { color: var(--danger); }
-  .compose-foot { display: flex; align-items: center; gap: 10px; padding: 12px 12px 12px 16px; border-top: 1px solid var(--line); flex-shrink: 0; }
-  .compose-foot .hint { font-size: 12px; color: var(--text-3); display: inline-flex; gap: 4px; align-items: center; }
+  .sig { margin: 0 18px 10px; padding: 6px 8px; border-radius: 8px; white-space: pre-wrap; word-break: break-word;
+    color: var(--text-3); font-size: 13.5px; line-height: 1.6; cursor: pointer; align-self: flex-start; text-align: left; }
+  .sig:hover { background: var(--hover); color: var(--text-2); }
+  .quote-toggle { margin: 2px 18px 14px; align-self: flex-start; height: 20px; padding: 0 8px; border-radius: 6px;
+    background: var(--active); color: var(--text-2); font-weight: 800; letter-spacing: 1px; line-height: 1; }
+  .quote-toggle:hover { background: var(--line-2); }
+  .quote { margin: 0 18px 18px; padding: 2px 0 2px 12px; border-left: 2px solid var(--line-2); color: var(--text-3);
+    white-space: pre-wrap; word-break: break-word; font-size: 13px; line-height: 1.6; }
+
+  .ai-card {
+    margin: 14px 14px 2px; padding: 12px 14px 12px; border-radius: 14px; flex-shrink: 0;
+    border: 1px solid var(--accent-ring); background: linear-gradient(180deg, var(--accent-soft), transparent 140%), var(--elev);
+    animation: fadeUp .2s var(--ease);
+  }
+  .ai-card.err { border-color: var(--danger-soft); background: var(--danger-soft); }
+  .ai-card-head { display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 650; color: var(--accent-text); }
+  .ai-card.err .ai-card-head { color: var(--danger); }
+  .ai-card-head .ai-pulse { margin-left: auto; font-weight: 500; color: var(--text-3); animation: pulse 1.4s ease-in-out infinite; }
+  .ai-card-text { margin-top: 8px; max-height: 320px; overflow-y: auto; white-space: pre-wrap; word-break: break-word;
+    font-size: 14px; line-height: 1.65; color: var(--text); }
+  .ai-card.err .ai-card-text { color: var(--text-2); font-size: 13px; }
+  .ai-card-text.streaming::after { content: ''; display: inline-block; width: 7px; height: 15px; margin-left: 2px;
+    vertical-align: -2px; border-radius: 2px; background: var(--accent); animation: blink 1s steps(2, start) infinite; }
+  .ai-card-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .btn.sm { height: 30px; padding: 0 11px; font-size: 13px; border-radius: 9px; gap: 6px; }
+
+  .ai-dock { flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; padding: 10px 12px 10px 14px;
+    border-top: 1px solid var(--line); background: linear-gradient(0deg, var(--accent-soft), transparent); }
+  .ai-chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 1px; }
+  .ai-chips::-webkit-scrollbar { display: none; }
+  .ai-chip { flex-shrink: 0; height: 28px; padding: 0 11px; border-radius: 999px; border: 1px solid var(--line-2);
+    background: var(--panel); color: var(--text-2); font-size: 12.5px; font-weight: 550; white-space: nowrap;
+    transition: border-color .15s, color .15s, background .15s; }
+  .ai-chip:hover { border-color: var(--accent); color: var(--accent-text); }
+  .ai-prompt { display: flex; align-items: center; gap: 6px; padding: 4px 4px 4px 12px; border-radius: 12px;
+    background: var(--input); border: 1px solid var(--line-2); transition: border-color .15s, box-shadow .15s; }
+  .ai-prompt:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .ai-prompt > .ic { color: var(--accent-text); }
+  .ai-prompt input { flex: 1; min-width: 0; height: 32px; border: 0; outline: none; background: none; }
+  .ai-prompt input::placeholder { color: var(--text-3); }
+  .ai-prompt select { height: 30px; max-width: 120px; padding: 0 6px; border: 0; border-radius: 8px; outline: none;
+    background: var(--hover); color: var(--text-2); font-size: 12.5px; cursor: pointer; }
+  .ai-prompt select option { background: var(--elev); color: var(--text); }
+  .ai-go { width: 32px; height: 32px; flex-shrink: 0; display: grid; place-items: center; border-radius: 9px; background: var(--accent); color: #fff; }
+  .ai-go:hover { background: var(--accent-hover); }
+  .ai-go:disabled { opacity: .5; cursor: default; }
+
+  .compose-foot { display: flex; align-items: center; gap: 6px; padding: 10px 10px 10px 14px; border-top: 1px solid var(--line); flex-shrink: 0; }
+  .compose-foot .hint { font-size: 12px; color: var(--text-3); display: inline-flex; gap: 3px; align-items: center; margin-right: 4px; }
   .compose-foot .spacer { flex: 1; }
+  .ai-main {
+    display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px; border-radius: 10px; flex-shrink: 0;
+    background: var(--accent-soft); color: var(--accent-text); font-size: 13px; font-weight: 600; transition: background .15s, color .15s;
+  }
+  .ai-main:hover { background: var(--accent-ring); }
+  .ai-main.on { background: var(--accent); color: #fff; }
   .compose-status { font-size: 12.5px; color: var(--text-3); min-width: 0; }
   .compose-status.err { color: var(--danger); }
+  .compose-status a { color: inherit; font-weight: 600; }
+  .word-count { font-size: 12px; color: var(--text-3); white-space: nowrap; margin-right: 4px; font-variant-numeric: tabular-nums; }
+  .field textarea { min-height: 120px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line-2);
+    background: var(--input); resize: vertical; line-height: 1.6; outline: none; transition: border-color .15s, box-shadow .15s; }
+  .field textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 
   /* ───────────────────────── DIALOGS ───────────────────────── */
   .scrim {
@@ -526,6 +610,8 @@
   @keyframes pop { from { opacity: 0; transform: scale(.97) translateY(4px); } to { opacity: 1; transform: none; } }
   @keyframes rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
   @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes blink { to { visibility: hidden; } }
+  @keyframes pulse { 50% { opacity: .45; } }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
@@ -587,9 +673,12 @@
     .msg-head { flex-wrap: wrap; }
     .msg-date { width: 100%; text-align: left; padding-left: 54px; margin-top: -10px; }
     .msg-frame { border-radius: 10px; }
-    .compose { inset: 0; width: 100%; height: 100%; border-radius: 0; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
-    .compose-foot .hint { display: none; }
-    .ai-toggle { padding: 0 9px; }
+    .compose, .compose[data-size] { inset: 0; margin: 0; width: 100%; height: 100%; border-radius: 0;
+      padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); animation: rise .24s var(--ease); }
+    .compose .size-btn, .compose-foot .hint, .word-count, .compose-scrim { display: none !important; }
+    .suggest { left: 10px; }
+    .ai-main .label { display: none; }
+    .ai-main { padding: 0 10px; }
     .fab { display: grid; }
     .app.reading .fab { display: none; }
     .search .kbd { display: none; }
@@ -636,6 +725,12 @@
   <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
   <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/></symbol>
   <symbol id="i-key" viewBox="0 0 24 24"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-maximize" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/></symbol>
+  <symbol id="i-minimize" viewBox="0 0 24 24"><path d="m14 10 7-7"/><path d="M20 10h-6V4"/><path d="m3 21 7-7"/><path d="M4 14h6v6"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></symbol>
+  <symbol id="i-signature" viewBox="0 0 24 24"><path d="m21 17-2.156-1.868A.5.5 0 0 0 18 15.5v.5a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1c0-2.545-3.991-3.97-8.5-4a1 1 0 0 0 0 5c4.153 0 4.745-11.295 5.708-13.5a2.5 2.5 0 1 1 3.31 3.284"/><path d="M3 21h18"/></symbol>
   <symbol id="i-search-x" viewBox="0 0 24 24"><path d="m13.5 8.5-5 5"/><path d="m8.5 8.5 5 5"/><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
 </svg>
 
@@ -728,61 +823,120 @@
 </div>
 
 <!-- ═════════════════════════ COMPOSE ═════════════════════════ -->
-<section class="compose" id="compose" role="dialog" aria-labelledby="compose-title" hidden>
-  <div class="compose-head">
-    <h2 id="compose-title">New message</h2>
-    <button class="ai-toggle" id="ai-toggle" data-action="toggle-ai" aria-expanded="false" aria-controls="ai-bar">
-      <svg class="ic xs" aria-hidden="true"><use href="#i-sparkles"/></svg> Write with AI
+<div class="compose-scrim" id="compose-scrim" data-action="compose-size" data-size="normal" hidden></div>
+<section class="compose" id="compose" role="dialog" aria-labelledby="compose-title" data-size="normal" hidden>
+  <header class="compose-head" id="compose-head">
+    <h2 id="compose-title" class="truncate">New message</h2>
+    <span class="draft-state" id="draft-state" aria-live="polite"></span>
+    <span class="spacer"></span>
+    <button class="icon-btn sm size-btn" data-action="compose-size" data-size="min" aria-label="Minimize" data-tip="Minimize">
+      <svg class="ic sm" aria-hidden="true"><use href="#i-minus"/></svg>
     </button>
-    <button class="icon-btn sm" data-action="close-compose" aria-label="Close">
+    <button class="icon-btn sm size-btn" id="c-max" data-action="compose-size" data-size="max" aria-label="Expand" data-tip="Expand">
+      <svg class="ic sm" aria-hidden="true"><use href="#i-maximize"/></svg>
+    </button>
+    <button class="icon-btn sm" data-action="close-compose" aria-label="Save draft and close" data-tip="Save &amp; close" data-tip-pos="end">
       <svg class="ic sm" aria-hidden="true"><use href="#i-x"/></svg>
     </button>
+  </header>
+
+  <div class="cf" id="c-from-row" hidden>
+    <label for="c-from">From</label>
+    <select id="c-from"></select>
   </div>
   <div class="cf">
-    <label for="c-to">To</label>
-    <input id="c-to" type="text" autocomplete="email" spellcheck="false" placeholder="name@example.com">
+    <label for="c-to-input">To</label>
+    <div class="chips" id="c-to" data-field="to">
+      <input id="c-to-input" type="text" autocomplete="off" spellcheck="false" aria-label="To">
+    </div>
     <span class="toggles">
       <button type="button" id="c-cc-toggle" data-action="show-cc">Cc</button>
       <button type="button" id="c-bcc-toggle" data-action="show-bcc">Bcc</button>
     </span>
   </div>
-  <div class="cf" id="c-cc-row" hidden><label for="c-cc">Cc</label><input id="c-cc" type="text" spellcheck="false"></div>
-  <div class="cf" id="c-bcc-row" hidden><label for="c-bcc">Bcc</label><input id="c-bcc" type="text" spellcheck="false"></div>
-  <div class="cf"><label for="c-subject">Subject</label><input id="c-subject" type="text"></div>
-  <div class="ai-bar" id="ai-bar" hidden>
-    <div class="ai-row">
-      <input id="ai-instruction" type="text" autocomplete="off" aria-label="Tell AI what to write"
-        placeholder="Tell AI what to write… e.g. “decline politely, suggest next week”">
+  <div class="cf" id="c-cc-row" hidden>
+    <label for="c-cc-input">Cc</label>
+    <div class="chips" id="c-cc" data-field="cc"><input id="c-cc-input" type="text" autocomplete="off" spellcheck="false" aria-label="Cc"></div>
+  </div>
+  <div class="cf" id="c-bcc-row" hidden>
+    <label for="c-bcc-input">Bcc</label>
+    <div class="chips" id="c-bcc" data-field="bcc"><input id="c-bcc-input" type="text" autocomplete="off" spellcheck="false" aria-label="Bcc"></div>
+  </div>
+  <div class="cf">
+    <label for="c-subject">Subject</label>
+    <input id="c-subject" type="text" autocomplete="off">
+    <button class="icon-btn sm subject-ai" id="c-subject-ai" data-action="ai-subject" aria-label="Suggest a subject with AI" data-tip="Suggest subject" data-tip-pos="end">
+      <svg class="ic sm" aria-hidden="true"><use href="#i-sparkles"/></svg>
+    </button>
+  </div>
+  <div class="suggest" id="c-suggest" role="listbox" aria-label="Suggested recipients" hidden></div>
+
+  <div class="compose-body scroll" id="compose-body">
+    <div class="ai-card" id="ai-card" aria-live="polite" hidden></div>
+    <textarea id="c-body" aria-label="Message" placeholder="Write your message…"></textarea>
+    <button type="button" class="sig" id="c-sig" data-action="edit-signature" title="Edit signature" hidden></button>
+    <button type="button" class="quote-toggle" id="c-quote-toggle" data-action="toggle-quote" aria-expanded="false" aria-controls="c-quote" aria-label="Show quoted text" hidden>•••</button>
+    <div class="quote" id="c-quote" hidden></div>
+  </div>
+
+  <div class="ai-dock" id="ai-dock" hidden>
+    <div class="ai-chips" id="ai-chips"></div>
+    <form class="ai-prompt" id="ai-form" autocomplete="off">
+      <svg class="ic sm" aria-hidden="true"><use href="#i-sparkles"/></svg>
+      <input id="ai-input" type="text" aria-label="Tell AI what to write">
       <select id="ai-tone" aria-label="Tone">
+        <option value="">Auto tone</option>
         <option value="professional">Professional</option>
         <option value="friendly">Friendly</option>
-        <option value="concise">Concise</option>
         <option value="warm">Warm</option>
+        <option value="concise">Concise</option>
         <option value="formal">Formal</option>
+        <option value="casual">Casual</option>
+        <option value="confident">Confident</option>
         <option value="persuasive">Persuasive</option>
+        <option value="apologetic">Apologetic</option>
       </select>
-    </div>
-    <div class="ai-row">
-      <button class="btn primary ai-btn" id="ai-generate-btn" data-action="ai-generate">
-        <svg class="ic xs" aria-hidden="true"><use href="#i-sparkles"/></svg> Generate
+      <button class="ai-go" id="ai-go" type="submit" aria-label="Generate">
+        <svg class="ic sm" aria-hidden="true"><use href="#i-arrow-up"/></svg>
       </button>
-      <button class="btn ai-btn" id="ai-improve-btn" data-action="ai-improve">Improve draft</button>
-      <span class="ai-status truncate" id="ai-status" role="status"></span>
-    </div>
+    </form>
   </div>
-  <textarea id="c-body" aria-label="Message body" placeholder="Write your message…"></textarea>
-  <div class="compose-foot">
+
+  <footer class="compose-foot">
     <button class="btn primary" id="send-btn" data-action="send">
       <svg class="ic sm" aria-hidden="true"><use href="#i-send"/></svg> Send
     </button>
-    <span class="hint"><span class="kbd" id="mod-key">⌘</span><span class="kbd">↵</span></span>
+    <span class="hint"><span class="kbd mod-key">⌘</span><span class="kbd">↵</span></span>
+    <button class="ai-main" id="ai-main" data-action="toggle-ai" aria-expanded="false" aria-controls="ai-dock">
+      <svg class="ic sm" aria-hidden="true"><use href="#i-sparkles"/></svg><span class="label">Write with AI</span>
+    </button>
     <span class="compose-status truncate" id="compose-status" role="status"></span>
     <span class="spacer"></span>
+    <span class="word-count" id="c-count"></span>
+    <button class="icon-btn" data-action="edit-signature" aria-label="Edit signature" data-tip="Signature">
+      <svg class="ic" aria-hidden="true"><use href="#i-signature"/></svg>
+    </button>
     <button class="icon-btn danger" data-action="discard" aria-label="Discard draft" data-tip="Discard" data-tip-pos="end">
       <svg class="ic" aria-hidden="true"><use href="#i-trash"/></svg>
     </button>
-  </div>
+  </footer>
 </section>
+
+<!-- ═════════════════════════ SIGNATURE DIALOG ═════════════════════════ -->
+<div class="scrim" id="sig-dialog" data-scrim="sig" hidden>
+  <form class="dialog" id="sig-form" role="dialog" aria-modal="true" aria-labelledby="sig-title">
+    <h2 id="sig-title">Email signature</h2>
+    <p class="sub" id="sig-sub"></p>
+    <div class="field">
+      <label for="sig-text">Signature</label>
+      <textarea id="sig-text" rows="5" placeholder="Best,&#10;Your name"></textarea>
+    </div>
+    <div class="dialog-actions">
+      <button type="button" class="btn ghost" data-action="close-sig">Cancel</button>
+      <button type="submit" class="btn primary">Save signature</button>
+    </div>
+  </form>
+</div>
 
 <!-- ═════════════════════════ CONNECT DIALOG ═════════════════════════ -->
 <div class="scrim" id="connect" data-scrim="connect" hidden>
@@ -1212,7 +1366,7 @@ async function signOut(email) {
 
 // ═════════════════════════ GATE ═════════════════════════
 function showGate() {
-  closeCompose(true);
+  closeCompose({ quiet: true });
   toggleAccountMenu(false);
   $('#app').hidden = true;
   $('#gate').hidden = false;
@@ -1612,6 +1766,7 @@ function renderReader() {
           <button class="btn pill" data-action="reply">${icon('reply', 'sm')} Reply</button>
           ${multi ? `<button class="btn pill" data-action="replyall">${icon('reply-all', 'sm')} Reply all</button>` : ''}
           <button class="btn pill" data-action="forward">${icon('forward', 'sm')} Forward</button>
+          <button class="btn pill ai-pill" data-action="ai-reply">${icon('sparkles', 'sm')} Reply with AI</button>
         </div>
       </article>
     </div>`;
@@ -1866,59 +2021,224 @@ const actions = {
 };
 
 // ═════════════════════════ COMPOSE ═════════════════════════
-function composeFields() {
-  return { to: $('#c-to'), cc: $('#c-cc'), bcc: $('#c-bcc'), subject: $('#c-subject'), body: $('#c-body') };
+const DRAFT_KEY = 'mail-draft-v2';
+const SIG_KEY = 'mail-signatures';
+const CONTACTS_KEY = 'mail-contacts';
+const UNDO_SEND_MS = 5000;
+const FIELDS = ['to', 'cc', 'bcc'];
+
+const compose = {
+  open: false,
+  size: 'normal',
+  kind: 'new',          // new | reply | replyall | forward
+  meta: null,           // { threadId, inReplyTo, references } when replying
+  quote: '',            // quoted original, appended on send
+  original: null,       // { from, date, subject, text } — context for the AI
+  recipients: { to: [], cc: [], bcc: [] },
+  touched: false,       // user edited something since opening
+  saveTimer: null,
+  pendingSend: null,    // { payload, snapshot, timer } during the undo window
+  suggest: null,        // { field, items, index }
+};
+
+function storeGet(key, fallback) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch { return fallback; }
 }
-function composeDirty() {
-  const f = composeFields();
-  if ($('#compose').hidden) return false;
-  return !!(f.to.value.trim() || f.cc.value.trim() || f.bcc.value.trim() || f.subject.value.trim() || f.body.value.trim())
-    && $('#compose').dataset.pristine !== composeSnapshot();
-}
-function composeSnapshot() {
-  const f = composeFields();
-  return [f.to.value, f.cc.value, f.bcc.value, f.subject.value, f.body.value].join('\u0000');
+function storeSet(key, value) {
+  try { if (value === undefined) localStorage.removeItem(key); else localStorage.setItem(key, JSON.stringify(value)); } catch {}
 }
 
-async function openCompose(opts = {}) {
-  if (composeDirty()) {
-    const ok = await confirmDialog({ title: 'Discard current draft?', body: 'You have an unsent message. Starting a new one will discard it.', confirm: 'Discard', danger: true });
-    if (!ok) return;
-  }
-  closeDrawer();
-  const f = composeFields();
-  state.compose = opts.threadId ? { threadId: opts.threadId, inReplyTo: opts.inReplyTo, references: opts.references } : null;
-  $('#compose-title').textContent = opts.title || 'New message';
-  f.to.value = opts.to || '';
-  f.cc.value = opts.cc || '';
-  f.bcc.value = '';
-  f.subject.value = opts.subject || '';
-  f.body.value = opts.body || '';
-  $('#c-cc-row').hidden = !opts.cc;
-  $('#c-bcc-row').hidden = true;
-  $('#c-cc-toggle').hidden = !!opts.cc;
-  $('#c-bcc-toggle').hidden = false;
-  setComposeStatus('');
-  setAiOpen(false);
-  $('#ai-instruction').value = '';
-  setAiStatus('');
-  $('#send-btn').disabled = false;
-  $('#compose').hidden = false;
-  $('#compose').dataset.pristine = composeSnapshot();
-  requestAnimationFrame(() => {
-    if (opts.focusBody) { f.body.focus(); f.body.setSelectionRange(0, 0); f.body.scrollTop = 0; }
-    else f.to.focus();
+const isValidAddr = raw => /^[^\s@<>(),;:"]+@[^\s@<>(),;:"]+\.[^\s@<>(),;:"]+$/.test(parseAddr(raw).email);
+const addrKey = raw => parseAddr(raw).email.toLowerCase();
+function formatAddr(name, email) {
+  if (!name || name === email) return email;
+  return /[",;:<>@()[\]\\]/.test(name) ? `"${name.replace(/(["\\])/g, '\\$1')}" <${email}>` : `${name} <${email}>`;
+}
+
+function fromEmail() { return $('#c-from').value || state.active || ''; }
+function fromAccount() { return state.accounts.find(a => a.email === fromEmail()) || activeAccount(); }
+
+// ── Recipient chips ──
+function chipBox(field) { return $(`#c-${field}`); }
+function chipInput(field) { return $(`#c-${field}-input`); }
+
+function renderChips(field) {
+  const box = chipBox(field);
+  const input = chipInput(field);
+  box.querySelectorAll('.chip').forEach(n => n.remove());
+  compose.recipients[field].forEach((raw, i) => {
+    const p = parseAddr(raw);
+    const ok = isValidAddr(raw);
+    const chip = document.createElement('span');
+    chip.className = 'chip' + (ok ? '' : ' invalid');
+    chip.title = ok ? p.email : `“${raw}” isn’t a valid email address — double-click to edit`;
+    chip.dataset.field = field;
+    chip.dataset.index = String(i);
+    chip.innerHTML = `${ok ? avatar(p.name, p.email, 20) : ''}<span class="chip-label truncate">${esc(ok && p.name !== p.email ? p.name : raw)}</span>`
+      + `<button type="button" data-action="chip-remove" data-field="${field}" data-index="${i}" aria-label="Remove ${esc(p.email || raw)}">${icon('x', 'xs')}</button>`;
+    box.insertBefore(chip, input);
   });
+  input.placeholder = field === 'to' && !compose.recipients.to.length ? 'Recipients' : '';
 }
 
-function closeCompose(force = false) {
-  if (!force && composeDirty()) {
-    confirmDialog({ title: 'Discard draft?', body: 'Your unsent message will be lost.', confirm: 'Discard', danger: true })
-      .then(ok => { if (ok) closeCompose(true); });
-    return;
+function takenAddrs() {
+  return new Set(FIELDS.flatMap(f => compose.recipients[f].map(addrKey)));
+}
+
+function addRecipients(field, text) {
+  const taken = takenAddrs();
+  let added = 0;
+  for (const part of splitAddrs(String(text).replace(/[;\n]+/g, ','))) {
+    const raw = part.trim();
+    if (!raw) continue;
+    const key = addrKey(raw);
+    if (key && taken.has(key)) continue;
+    taken.add(key);
+    compose.recipients[field].push(raw);
+    added++;
   }
-  $('#compose').hidden = true;
-  state.compose = null;
+  if (added) renderChips(field);
+  return added;
+}
+
+function commitInput(field) {
+  const input = chipInput(field);
+  const v = input.value.trim();
+  input.value = '';
+  if (v && addRecipients(field, v)) onComposeChange();
+  if (compose.suggest && compose.suggest.field === field) hideSuggest();
+}
+
+function removeChip(field, index) {
+  compose.recipients[field].splice(index, 1);
+  renderChips(field);
+  onComposeChange();
+  chipInput(field).focus();
+}
+
+function editChip(field, index) {
+  const raw = compose.recipients[field][index];
+  if (raw === undefined) return;
+  commitInput(field);
+  compose.recipients[field].splice(index, 1);
+  renderChips(field);
+  const input = chipInput(field);
+  input.value = raw;
+  input.focus();
+  onComposeChange();
+}
+
+// ── Contact suggestions ──
+function contactBook() {
+  const map = new Map();
+  const add = (raw, weight) => {
+    if (!isValidAddr(raw)) return;
+    const p = parseAddr(raw);
+    const key = p.email.toLowerCase();
+    const cur = map.get(key);
+    if (cur) {
+      cur.score += weight;
+      if (cur.name === cur.email && p.name !== p.email) cur.name = p.name;
+    } else map.set(key, { name: p.name, email: p.email, score: weight });
+  };
+  storeGet(CONTACTS_KEY, []).forEach(c => add(c, 4));
+  state.emails.forEach(e => {
+    splitAddrs(e.from).forEach(a => add(a, 1));
+    splitAddrs(e.to).forEach(a => add(a, 1));
+  });
+  const mine = new Set(state.accounts.map(a => a.email.toLowerCase()));
+  return [...map.values()].filter(c => !mine.has(c.email.toLowerCase()));
+}
+
+function rememberContacts(list) {
+  const known = storeGet(CONTACTS_KEY, []).filter(c => typeof c === 'string');
+  const keys = new Set(list.map(addrKey));
+  const next = [...list, ...known.filter(c => !keys.has(addrKey(c)))].slice(0, 300);
+  storeSet(CONTACTS_KEY, next);
+}
+
+function updateSuggest(field) {
+  const q = chipInput(field).value.trim().toLowerCase();
+  if (q.length < 1) { hideSuggest(); return; }
+  const taken = takenAddrs();
+  const starts = c => c.email.toLowerCase().startsWith(q) || c.name.toLowerCase().split(/\s+/).some(w => w.startsWith(q));
+  const items = contactBook()
+    .filter(c => !taken.has(c.email.toLowerCase()) && (c.email.toLowerCase().includes(q) || c.name.toLowerCase().includes(q)))
+    .sort((a, b) => (starts(b) - starts(a)) || (b.score - a.score))
+    .slice(0, 6);
+  if (!items.length) { hideSuggest(); return; }
+  compose.suggest = { field, items, index: 0 };
+  const el = $('#c-suggest');
+  chipBox(field).parentElement.appendChild(el);
+  renderSuggest();
+  el.hidden = false;
+}
+function renderSuggest() {
+  const s = compose.suggest;
+  if (!s) return;
+  $('#c-suggest').innerHTML = s.items.map((c, i) => `
+    <div class="suggest-item ${i === s.index ? 'active' : ''}" role="option" aria-selected="${i === s.index}" data-action="pick-suggest" data-index="${i}">
+      ${avatar(c.name, c.email, 28)}
+      <span class="s-meta"><span class="s-name truncate">${esc(c.name)}</span>${c.name !== c.email ? `<span class="s-email truncate">${esc(c.email)}</span>` : ''}</span>
+    </div>`).join('');
+}
+function hideSuggest() {
+  compose.suggest = null;
+  const el = $('#c-suggest');
+  el.hidden = true;
+  el.innerHTML = '';
+}
+function pickSuggest(index) {
+  const s = compose.suggest;
+  if (!s || !s.items[index]) return;
+  const c = s.items[index];
+  chipInput(s.field).value = '';
+  if (addRecipients(s.field, formatAddr(c.name, c.email))) onComposeChange();
+  const field = s.field;
+  hideSuggest();
+  chipInput(field).focus();
+}
+
+// ── Body, signature, quote ──
+function autosizeBody() {
+  const t = $('#c-body');
+  const scroller = $('#compose-body');
+  const top = scroller.scrollTop;
+  t.style.height = 'auto';
+  t.style.height = Math.max(t.scrollHeight, 160) + 'px';
+  scroller.scrollTop = top;
+}
+
+function signatures() { return storeGet(SIG_KEY, {}); }
+function signatureFor(email) { return String(signatures()[email] || '').replace(/\s+$/, ''); }
+function renderSignature() {
+  const sig = signatureFor(fromEmail());
+  const el = $('#c-sig');
+  el.hidden = !sig;
+  el.textContent = sig;
+}
+
+function renderQuote(open) {
+  const has = !!compose.quote;
+  const toggle = $('#c-quote-toggle');
+  toggle.hidden = !has;
+  $('#c-quote').textContent = compose.quote;
+  $('#c-quote').hidden = !has || !open;
+  toggle.setAttribute('aria-expanded', String(has && !!open));
+  toggle.setAttribute('aria-label', open ? 'Hide quoted text' : 'Show quoted text');
+}
+
+function buildBody() {
+  let text = $('#c-body').value.replace(/\s+$/, '');
+  const sig = signatureFor(fromEmail());
+  if (sig) text += (text ? '\n\n' : '') + sig;
+  if (compose.quote) text += (text ? '\n\n' : '') + compose.quote;
+  return text;
+}
+
+function updateWordCount() {
+  const words = ($('#c-body').value.trim().match(/\S+/g) || []).length;
+  $('#c-count').textContent = words ? `${words} word${words === 1 ? '' : 's'}` : '';
 }
 
 function setComposeStatus(text, err = false) {
@@ -1926,43 +2246,210 @@ function setComposeStatus(text, err = false) {
   el.textContent = text;
   el.classList.toggle('err', err);
 }
+function setDraftState(text) { $('#draft-state').textContent = text; }
 
-async function sendEmail() {
-  const f = composeFields();
-  // Accept "a@x.com; b@y.com" as well as comma-separated lists.
-  const norm = v => v.trim().replace(/;/g, ',').replace(/,\s*$/, '');
-  const to = norm(f.to.value);
-  if (!to) { setComposeStatus('Add at least one recipient.', true); f.to.focus(); return; }
-  if (!splitAddrs(to).every(a => /\S+@\S+\.\S+/.test(parseAddr(a).email))) {
-    setComposeStatus('Check the recipient address.', true); f.to.focus(); return;
+// ── Draft persistence (this browser) ──
+function draftData() {
+  return {
+    v: 2, kind: compose.kind, title: $('#compose-title').textContent, from: fromEmail(),
+    to: [...compose.recipients.to], cc: [...compose.recipients.cc], bcc: [...compose.recipients.bcc],
+    subject: $('#c-subject').value, body: $('#c-body').value,
+    quote: compose.quote, original: compose.original, meta: compose.meta,
+    showCc: !$('#c-cc-row').hidden || compose.recipients.cc.length > 0,
+    showBcc: !$('#c-bcc-row').hidden || compose.recipients.bcc.length > 0,
+    savedAt: Date.now(),
+  };
+}
+function draftHasContent(d) {
+  return !!(d && (d.to?.length || d.cc?.length || d.bcc?.length || d.subject?.trim() || d.body?.trim()));
+}
+function savedDraft() {
+  const d = storeGet(DRAFT_KEY, null);
+  return d && d.v === 2 && draftHasContent(d) ? d : null;
+}
+function saveDraftNow() {
+  clearTimeout(compose.saveTimer);
+  compose.saveTimer = null;
+  if (!compose.open || !compose.touched) return false;
+  const d = draftData();
+  // Keep half-typed addresses too, without turning them into chips mid-typing.
+  FIELDS.forEach(f => { const v = chipInput(f).value.trim(); if (v) d[f] = [...d[f], v]; });
+  if (draftHasContent(d)) { storeSet(DRAFT_KEY, d); setDraftState('Draft saved'); }
+  else { storeSet(DRAFT_KEY); setDraftState(''); }
+  updateComposeButton();
+  return draftHasContent(d);
+}
+function onComposeChange() {
+  if (!compose.open) return;
+  compose.touched = true;
+  setDraftState('Saving…');
+  clearTimeout(compose.saveTimer);
+  compose.saveTimer = setTimeout(saveDraftNow, 700);
+  updateWordCount();
+  updateAiChips();
+}
+function updateComposeButton() {
+  const label = $('.compose-btn .label');
+  if (!label) return;
+  const hasDraft = !compose.open && !compose.pendingSend && !!savedDraft();
+  label.textContent = hasDraft ? 'Continue draft' : 'Compose';
+}
+
+// ── Open / fill / close ──
+function renderFromOptions(selected) {
+  const sel = $('#c-from');
+  const accts = state.accounts.filter(a => a.email && a.email !== 'Connected account');
+  sel.innerHTML = accts.map(a => `<option value="${esc(a.email)}">${esc(a.name ? `${a.name} <${a.email}>` : a.email)}</option>`).join('');
+  const want = selected && accts.some(a => a.email === selected) ? selected : state.active;
+  if (want && accts.some(a => a.email === want)) sel.value = want;
+  $('#c-from-row').hidden = accts.length < 2;
+}
+
+function fillCompose(d) {
+  compose.kind = d.kind || 'new';
+  compose.meta = d.meta || null;
+  compose.quote = d.quote || '';
+  compose.original = d.original || null;
+  compose.recipients = { to: [...(d.to || [])], cc: [...(d.cc || [])], bcc: [...(d.bcc || [])] };
+  $('#compose-title').textContent = d.title || 'New message';
+  renderFromOptions(d.from);
+  FIELDS.forEach(f => { chipInput(f).value = ''; renderChips(f); });
+  $('#c-cc-row').hidden = !d.showCc && !compose.recipients.cc.length;
+  $('#c-bcc-row').hidden = !d.showBcc && !compose.recipients.bcc.length;
+  $('#c-cc-toggle').hidden = !$('#c-cc-row').hidden;
+  $('#c-bcc-toggle').hidden = !$('#c-bcc-row').hidden;
+  $('#c-subject').value = d.subject || '';
+  $('#c-body').value = d.body || '';
+  renderSignature();
+  renderQuote(compose.kind === 'forward');
+  hideSuggest();
+  hideAiCard();
+  setComposeStatus('');
+  setDraftState('');
+  updateWordCount();
+}
+
+function showCompose() {
+  compose.open = true;
+  $('#compose').hidden = false;
+  setComposeSize(isMobile() ? 'normal' : (compose.size === 'min' ? 'normal' : compose.size));
+  $('#send-btn').disabled = false;
+  closeDrawer();
+  updateComposeButton();
+  requestAnimationFrame(autosizeBody);
+}
+
+function focusCompose(target) {
+  requestAnimationFrame(() => {
+    const t = $('#c-body');
+    if (target === 'body') { t.focus(); t.setSelectionRange(0, 0); $('#compose-body').scrollTop = 0; }
+    else if (target === 'subject') $('#c-subject').focus();
+    else chipInput('to').focus();
+  });
+}
+
+// opts: { kind, title, to:[], cc:[], subject, body, quote, original, meta, focus, from }
+async function openCompose(opts = {}) {
+  const fresh = !opts.kind || opts.kind === 'new';
+  if (compose.open) {
+    if (fresh) { setComposeSize(compose.size === 'min' ? 'normal' : compose.size); focusCompose(); return true; }
+    if (compose.touched && draftHasContent(draftData())) {
+      const ok = await confirmDialog({ title: 'Discard your current draft?', body: 'You have an unsent message open. Starting a new one will discard it.', confirm: 'Discard draft', danger: true });
+      if (!ok) return false;
+    }
+  } else {
+    const saved = compose.pendingSend ? null : savedDraft();
+    if (saved && fresh) {
+      fillCompose(saved);
+      compose.touched = true;
+      showCompose();
+      setDraftState('Draft restored');
+      focusCompose(saved.to.length ? 'body' : 'to');
+      return true;
+    }
+    if (saved && !fresh) {
+      const ok = await confirmDialog({ title: 'Discard your saved draft?', body: 'You have an unsent draft. Starting a new message will discard it.', confirm: 'Discard draft', danger: true });
+      if (!ok) return false;
+    }
   }
-  const btn = $('#send-btn');
-  if (btn.disabled) return;
-  btn.disabled = true;
-  setComposeStatus('Sending…');
-  const payload = { action: 'send', to, cc: norm(f.cc.value), bcc: norm(f.bcc.value), subject: f.subject.value.trim(), body: f.body.value };
-  if (state.compose) Object.assign(payload, state.compose);
-  try {
-    await api('POST', payload);
-    closeCompose(true);
-    toast('Message sent');
-    if (state.folder === 'SENT' && !state.query) loadEmails();
-  } catch (e) {
-    if ((e.needScope || e.needAuth) && !isImap()) {
-      $('#compose-status').innerHTML = 'Read-only access — <a href="/api/auth">sign in with Google</a> to send.';
-      $('#compose-status').classList.add('err');
-    } else setComposeStatus(e.message, true);
-  } finally {
-    btn.disabled = false;
+  stopAi();
+  storeSet(DRAFT_KEY);
+  fillCompose({
+    kind: opts.kind || 'new', title: opts.title, from: opts.from,
+    to: opts.to || [], cc: opts.cc || [], showCc: !!(opts.cc && opts.cc.length),
+    subject: opts.subject || '', body: opts.body || '',
+    quote: opts.quote || '', original: opts.original || null, meta: opts.meta || null,
+  });
+  compose.touched = false;
+  showCompose();
+  focusCompose(opts.focus || 'to');
+  return true;
+}
+
+function closeCompose({ quiet = false } = {}) {
+  if (!compose.open) return;
+  stopAi();
+  hideSuggest();
+  FIELDS.forEach(f => { const v = chipInput(f).value.trim(); if (v) { addRecipients(f, v); chipInput(f).value = ''; } });
+  const saved = saveDraftNow();
+  compose.open = false;
+  $('#compose').hidden = true;
+  $('#compose-scrim').hidden = true;
+  updateComposeButton();
+  if (saved && !quiet) toast('Draft saved');
+}
+
+function discardDraft() {
+  const snapshot = compose.touched ? draftData() : null;
+  stopAi();
+  hideSuggest();
+  compose.open = false;
+  compose.touched = false;
+  clearTimeout(compose.saveTimer);
+  storeSet(DRAFT_KEY);
+  $('#compose').hidden = true;
+  $('#compose-scrim').hidden = true;
+  updateComposeButton();
+  if (snapshot && draftHasContent(snapshot)) {
+    toast('Draft discarded', { label: 'Undo', fn: () => restoreSnapshot(snapshot) });
   }
 }
 
+// Bring a saved snapshot back into the compose window (undo / failed send).
+async function restoreSnapshot(snap, status = '') {
+  if (compose.open && compose.touched && draftHasContent(draftData())) {
+    const ok = await confirmDialog({ title: 'Replace the message you’re writing?', body: 'Restoring the other message will discard your current draft.', confirm: 'Replace', danger: true });
+    if (!ok) return false;
+  }
+  stopAi();
+  fillCompose(snap);
+  compose.touched = true;
+  showCompose();
+  saveDraftNow();
+  if (status) setComposeStatus(status, /^Couldn/.test(status));
+  focusCompose('body');
+  return true;
+}
+
+function setComposeSize(size) {
+  if (isMobile()) size = 'normal';
+  compose.size = size;
+  $('#compose').dataset.size = size;
+  $('#compose-scrim').hidden = size !== 'max' || !compose.open;
+  const max = $('#c-max');
+  max.dataset.size = size === 'max' ? 'normal' : 'max';
+  max.innerHTML = icon(size === 'max' ? 'minimize' : 'maximize', 'sm');
+  max.setAttribute('aria-label', size === 'max' ? 'Exit full size' : 'Expand');
+  max.setAttribute('data-tip', size === 'max' ? 'Exit full size' : 'Expand');
+  if (size !== 'min') requestAnimationFrame(autosizeBody);
+}
+
+// ── Replies & forwards ──
 function quotedText(m) {
-  const text = (m.text || htmlToText(m.html) || m.snippet || '').slice(0, 30000);
-  return text.replace(/\r\n/g, '\n');
+  return (m.text || htmlToText(m.html) || m.snippet || '').replace(/\r\n/g, '\n').slice(0, 30000).trim();
 }
 
-function startReply(kind) {
+async function startReply(kind, { withAi = false } = {}) {
   const m = state.message;
   if (!m) return;
   const me = (state.active || '').toLowerCase();
@@ -1970,103 +2457,430 @@ function startReply(kind) {
   const d = parseDate(m.dateRaw);
   const when = d ? fullDate(d) : m.dateRaw;
   const subject = m.subject || '';
+  const text = quotedText(m);
+  const original = { from: m.from, date: when, subject, text };
 
+  let ok;
   if (kind === 'forward') {
     const header = ['---------- Forwarded message ---------', `From: ${m.from}`, `Date: ${when}`, `Subject: ${subject}`, `To: ${m.to}`]
       .concat(m.cc ? [`Cc: ${m.cc}`] : []).join('\n');
-    openCompose({
-      title: 'Forward', subject: /^fwd?:/i.test(subject) ? subject : 'Fwd: ' + subject,
-      body: `\n\n${header}\n\n${quotedText(m)}`,
+    ok = await openCompose({
+      kind: 'forward', title: 'Forward', from: state.active,
+      subject: /^fwd?:/i.test(subject) ? subject : 'Fwd: ' + subject,
+      quote: `${header}\n\n${text}`, original, focus: 'to',
     });
-    return;
+  } else {
+    let to = splitAddrs(m.replyTo || m.from);
+    // Replying to something I sent goes back to the original recipients.
+    if (fromP.email.toLowerCase() === me && splitAddrs(m.to).length) to = splitAddrs(m.to);
+    let cc = [];
+    if (kind === 'replyall') {
+      const seen = new Set([me, ...to.map(addrKey)]);
+      cc = [...splitAddrs(m.to), ...splitAddrs(m.cc)].filter(a => {
+        const k = addrKey(a);
+        if (!k || seen.has(k)) return false;
+        seen.add(k);
+        return true;
+      });
+    }
+    ok = await openCompose({
+      kind, title: kind === 'replyall' ? 'Reply all' : 'Reply', from: state.active,
+      to, cc, subject: /^re:/i.test(subject) ? subject : 'Re: ' + subject,
+      quote: `On ${when}, ${fromP.name} wrote:\n` + text.split('\n').map(l => '> ' + l).join('\n'),
+      original,
+      meta: { threadId: m.threadId, inReplyTo: m.messageId, references: [m.references, m.messageId].filter(Boolean).join(' ') },
+      focus: 'body',
+    });
   }
+  if (ok && withAi) { setAiDock(true); runAi(kind === 'forward' ? 'write' : 'reply', kind === 'forward' ? 'Write a short note introducing the forwarded message.' : ''); }
+}
 
-  let to = splitAddrs(m.replyTo || m.from);
-  // Replying to something I sent goes back to the original recipients.
-  if (fromP.email.toLowerCase() === me && splitAddrs(m.to).length) to = splitAddrs(m.to);
-  let cc = [];
-  if (kind === 'replyall') {
-    const seen = new Set([me, ...to.map(a => parseAddr(a).email.toLowerCase())]);
-    cc = [...splitAddrs(m.to), ...splitAddrs(m.cc)].filter(a => {
-      const em = parseAddr(a).email.toLowerCase();
-      if (!em || seen.has(em)) return false;
-      seen.add(em);
-      return true;
-    });
+// ── Sending (with a short undo window) ──
+async function sendEmail() {
+  if (!compose.open || compose.pendingSend) return;
+  FIELDS.forEach(commitInput);
+  const r = compose.recipients;
+  const all = FIELDS.flatMap(f => r[f]);
+  if (!all.length) { setComposeStatus('Add at least one recipient.', true); chipInput('to').focus(); return; }
+  const bad = all.filter(a => !isValidAddr(a));
+  if (bad.length) { setComposeStatus(`Fix the highlighted address${bad.length > 1 ? 'es' : ''}.`, true); return; }
+  const subject = $('#c-subject').value.trim();
+  const body = buildBody();
+  if (!subject || !$('#c-body').value.trim()) {
+    const missing = !subject && !$('#c-body').value.trim() ? 'a subject or message' : !subject ? 'a subject' : 'a message';
+    const go = await confirmDialog({ title: `Send without ${missing}?`, body: 'You can go back and add it, or send it as it is.', confirm: 'Send anyway' });
+    if (!go || !compose.open) return;
   }
-  const quote = quotedText(m).split('\n').map(l => '> ' + l).join('\n');
-  openCompose({
-    title: kind === 'replyall' ? 'Reply all' : 'Reply',
-    to: to.join(', '), cc: cc.join(', '),
-    subject: /^re:/i.test(subject) ? subject : 'Re: ' + subject,
-    body: `\n\nOn ${when}, ${fromP.name} wrote:\n${quote}`,
-    threadId: m.threadId, inReplyTo: m.messageId,
-    references: [m.references, m.messageId].filter(Boolean).join(' '),
-    focusBody: true,
-  });
+  stopAi();
+  const payload = {
+    action: 'send', account: fromEmail(), subject, body,
+    to: r.to.join(', '), cc: r.cc.join(', '), bcc: r.bcc.join(', '),
+    ...(compose.meta || {}),
+  };
+  const snapshot = draftData();
+  storeSet(DRAFT_KEY, { ...snapshot, sending: true });
+  compose.open = false;
+  compose.touched = false;
+  clearTimeout(compose.saveTimer);
+  $('#compose').hidden = true;
+  $('#compose-scrim').hidden = true;
+  const timer = setTimeout(deliver, UNDO_SEND_MS);
+  compose.pendingSend = { payload, snapshot, timer };
+  updateComposeButton();
+  toast('Sending…', { label: 'Undo', fn: undoSend }, UNDO_SEND_MS);
+}
+
+function undoSend() {
+  const p = compose.pendingSend;
+  if (!p) return;
+  clearTimeout(p.timer);
+  compose.pendingSend = null;
+  updateComposeButton();
+  restoreSnapshot(p.snapshot, 'Sending cancelled — your message is still here.');
+}
+
+async function deliver() {
+  const p = compose.pendingSend;
+  if (!p) return;
+  try {
+    await api('POST', p.payload);
+    compose.pendingSend = null;
+    const stored = storeGet(DRAFT_KEY, null);
+    if (stored && stored.savedAt === p.snapshot.savedAt) storeSet(DRAFT_KEY);
+    rememberContacts([...p.snapshot.to, ...p.snapshot.cc, ...p.snapshot.bcc].filter(isValidAddr));
+    updateComposeButton();
+    toast(p.payload.account && p.payload.account !== state.active ? `Sent from ${p.payload.account}` : 'Message sent');
+    if (state.folder === 'SENT' && !state.query && p.payload.account === state.active) loadEmails();
+  } catch (e) {
+    compose.pendingSend = null;
+    updateComposeButton();
+    const acc = state.accounts.find(a => a.email === p.payload.account);
+    const reauth = (e.needScope || e.needAuth) && acc && acc.kind !== 'imap';
+    const restore = async () => {
+      if (!(await restoreSnapshot(p.snapshot, 'Couldn’t send: ' + e.message))) return;
+      if (reauth) {
+        $('#compose-status').innerHTML = 'This account can’t send yet — <a href="/api/auth">sign in with Google</a> again.';
+        $('#compose-status').classList.add('err');
+      }
+    };
+    // If another message is being written, don't overwrite it — offer to reopen instead.
+    if (compose.open && compose.touched) toast('Message not sent: ' + e.message, { label: 'Reopen', fn: restore }, 10000);
+    else { toast('Message not sent'); restore(); }
+  }
 }
 
 // ═════════════════════════ AI WRITING ASSISTANT (Gemini via /api/ai) ═════════════════════════
-let aiBusy = false;
-function setAiOpen(open) {
-  $('#ai-bar').hidden = !open;
-  $('#ai-toggle').setAttribute('aria-expanded', String(open));
-  if (open) setTimeout(() => $('#ai-instruction').focus(), 20);
-}
-function setAiStatus(text, err = false) {
-  const el = $('#ai-status');
-  el.textContent = text;
-  el.title = text;
-  el.classList.toggle('err', err);
+const ai = { controller: null, running: false, action: null, text: '', req: null };
+const AI_LABELS = {
+  write: 'Draft', reply: 'Suggested reply', improve: 'Improved', shorten: 'Shorter version', expand: 'Expanded',
+  formal: 'More formal', friendly: 'Friendlier', proofread: 'Proofread', custom: 'Rewrite',
+};
+
+function setAiDock(open) {
+  $('#ai-dock').hidden = !open;
+  const btn = $('#ai-main');
+  btn.classList.toggle('on', open);
+  btn.setAttribute('aria-expanded', String(open));
+  if (open) { updateAiChips(); setTimeout(() => $('#ai-input').focus(), 20); }
 }
 
-async function aiGenerate(mode) {
-  if (aiBusy) return;
-  const f = composeFields();
-  const instruction = $('#ai-instruction').value.trim();
-  const tone = $('#ai-tone').value;
-  const draft = f.body.value;
-  // Replies are pre-filled with quoted text, so "Generate" writes a reply to it.
-  if (mode === 'compose' && state.compose) mode = 'reply';
-  if (mode === 'compose' && !instruction) { setAiStatus('Tell the assistant what to write first.', true); $('#ai-instruction').focus(); return; }
-  if (mode === 'improve' && !draft.trim()) { setAiStatus('Write a draft to improve, or use Generate.', true); return; }
-
-  const genBtn = $('#ai-generate-btn'), impBtn = $('#ai-improve-btn');
-  const activeBtn = mode === 'improve' ? impBtn : genBtn;
-  const original = activeBtn.innerHTML;
-  aiBusy = true;
-  genBtn.disabled = impBtn.disabled = true;
-  activeBtn.textContent = mode === 'improve' ? 'Improving…' : 'Writing…';
-  setAiStatus('Gemini is drafting your email…');
-  try {
-    const res = await fetch('/api/ai', {
-      method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mode, instruction, draft, to: f.to.value.trim(), subject: f.subject.value.trim(), tone }),
-    });
-    const data = await res.json().catch(() => ({ error: res.statusText || 'Request failed' }));
-    if (!res.ok) throw new Error(data.error || res.statusText || 'Request failed');
-    if (mode === 'improve' || mode === 'reply') {
-      // Keep any quoted original message that follows the user's text.
-      const quoteIdx = draft.search(/\n*On .+ wrote:/);
-      const fwdIdx = draft.search(/\n*---------- Forwarded message ---------/);
-      const cut = [quoteIdx, fwdIdx].filter(i => i > -1).sort((a, b) => a - b)[0];
-      const tail = cut !== undefined ? draft.slice(cut).replace(/^\n+/, '') : '';
-      f.body.value = data.text + (tail ? '\n\n' + tail : '');
-    } else {
-      f.body.value = data.text;
-    }
-    setAiStatus('Drafted with ' + (data.model || 'Gemini') + ' — edit as you like.');
-    $('#ai-instruction').value = '';
-    f.body.focus();
-    f.body.setSelectionRange(0, 0);
-    f.body.scrollTop = 0;
-  } catch (e) {
-    setAiStatus(e.message, true);
-  } finally {
-    aiBusy = false;
-    genBtn.disabled = impBtn.disabled = false;
-    activeBtn.innerHTML = original;
+function updateAiChips() {
+  if ($('#ai-dock').hidden) return;
+  const hasDraft = !!$('#c-body').value.trim();
+  const isReply = compose.kind === 'reply' || compose.kind === 'replyall';
+  let chips = [];
+  if (hasDraft) {
+    chips = [['improve', 'Improve'], ['shorten', 'Shorten'], ['expand', 'Elaborate'], ['formal', 'More formal'], ['friendly', 'Friendlier'], ['proofread', 'Fix grammar']];
+  } else if (isReply && compose.original) {
+    chips = [
+      ['reply', 'Draft a reply', ''],
+      ['reply', 'Say yes', 'Agree / accept, positively and briefly.'],
+      ['reply', 'Decline politely', 'Politely decline.'],
+      ['reply', 'Ask for details', 'Ask the clarifying questions needed to move forward.'],
+      ['reply', 'Say thanks', 'Thank them warmly and briefly.'],
+    ];
+  } else if (compose.kind === 'forward' && compose.original) {
+    chips = [['write', 'Add a forwarding note', 'Write a short note introducing the forwarded message.']];
   }
+  $('#ai-chips').innerHTML = chips.map(([action, label, instruction = '']) =>
+    `<button type="button" class="ai-chip" data-action="ai-run" data-ai="${action}" data-instruction="${esc(instruction)}">${esc(label)}</button>`).join('');
+  $('#ai-chips').hidden = !chips.length;
+  $('#ai-input').placeholder = hasDraft ? 'Tell AI how to change your draft…'
+    : isReply ? 'Describe your reply — e.g. “yes, Thursday at 3 works”'
+      : 'Describe the email you want to write…';
+}
+
+function aiRequest(action, instruction) {
+  const acc = fromAccount();
+  return {
+    action, instruction, stream: true,
+    draft: $('#c-body').value,
+    tone: $('#ai-tone').value,
+    to: FIELDS.flatMap(f => compose.recipients[f]).join(', '),
+    subject: $('#c-subject').value.trim(),
+    senderName: acc?.name || '', senderEmail: fromEmail(),
+    hasSignature: !!signatureFor(fromEmail()),
+    original: compose.original,
+  };
+}
+
+// Reads the server's newline-delimited JSON stream; falls back to a plain JSON body.
+async function streamAi(req, onText, signal) {
+  const res = await fetch('/api/ai', {
+    method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req), signal,
+  });
+  const type = res.headers.get('content-type') || '';
+  if (!res.ok || !type.includes('ndjson') || !res.body) {
+    const data = await res.json().catch(() => ({ error: res.statusText || 'AI request failed' }));
+    if (!res.ok || data.error) throw new Error(data.error || 'AI request failed');
+    onText(data.text || '');
+    return;
+  }
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = '', finished = false;
+  const handle = line => {
+    if (!line.trim()) return;
+    let msg;
+    try { msg = JSON.parse(line); } catch { return; }
+    if (msg.error) throw new Error(msg.error);
+    if (msg.t) onText(msg.t);
+    if (msg.done) finished = true;
+  };
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    let nl;
+    while ((nl = buf.indexOf('\n')) > -1) { handle(buf.slice(0, nl)); buf = buf.slice(nl + 1); }
+  }
+  if (buf) handle(buf);
+  if (!finished) throw new Error('The response was cut off. Try again.');
+}
+
+function cleanAiText(t) {
+  let s = String(t || '').replace(/\r\n/g, '\n').trim();
+  s = s.replace(/^```[a-z]*\n?/i, '').replace(/\n?```$/, '').trim();
+  s = s.replace(/^subject:[^\n]*\n+/i, '').trim();
+  if (/^"[\s\S]*"$/.test(s) && !s.slice(1, -1).includes('"')) s = s.slice(1, -1).trim();
+  return s;
+}
+
+async function runAi(action, instruction = '') {
+  if (!compose.open) return;
+  stopAi();
+  const req = aiRequest(action, instruction);
+  const controller = new AbortController();
+  Object.assign(ai, { controller, running: true, action, text: '', req });
+  $('#ai-go').disabled = true;
+  renderAiCard('streaming');
+  try {
+    await streamAi(req, chunk => {
+      if (ai.controller !== controller) return;
+      ai.text += chunk;
+      const el = $('#ai-card-text');
+      if (el) { el.textContent = ai.text; el.scrollTop = el.scrollHeight; }
+    }, controller.signal);
+    if (ai.controller !== controller) return;
+    ai.text = cleanAiText(ai.text);
+    ai.running = false;
+    renderAiCard(ai.text ? 'done' : 'error', 'The assistant returned nothing. Try again.');
+  } catch (e) {
+    if (ai.controller !== controller || controller.signal.aborted) return;
+    ai.running = false;
+    renderAiCard('error', e.message || 'Something went wrong.');
+  } finally {
+    if (ai.controller === controller) { ai.controller = null; $('#ai-go').disabled = false; }
+  }
+}
+
+function retryAi() { if (ai.req) runAi(ai.req.action, ai.req.instruction); }
+
+// Cancel any running request. With keep=true a partial answer stays reviewable.
+function stopAi(keep = false) {
+  const c = ai.controller;
+  ai.controller = null;
+  ai.running = false;
+  $('#ai-go').disabled = false;
+  if (c) c.abort();
+  if (keep && ai.text.trim()) { ai.text = cleanAiText(ai.text); renderAiCard('done'); }
+  else if (c || !keep) hideAiCard();
+}
+
+function hideAiCard() {
+  const card = $('#ai-card');
+  card.hidden = true;
+  card.innerHTML = '';
+}
+
+function renderAiCard(status, err = '') {
+  const card = $('#ai-card');
+  const hasDraft = !!$('#c-body').value.trim();
+  const retry = `<button class="btn ghost sm" data-action="ai-retry">${icon('refresh', 'xs')} Try again</button>`;
+  const dismiss = `<button class="btn ghost sm" data-action="ai-dismiss">Discard</button>`;
+  let actions;
+  if (status === 'streaming') actions = `<button class="btn sm" data-action="ai-stop">${icon('stop', 'xs')} Stop</button>`;
+  else if (status === 'done') {
+    actions = (hasDraft
+      ? `<button class="btn primary sm" data-action="ai-accept" data-mode="replace">${icon('check', 'xs')} Replace draft</button>
+         <button class="btn sm" data-action="ai-accept" data-mode="append">Insert below</button>`
+      : `<button class="btn primary sm" data-action="ai-accept" data-mode="replace">${icon('check', 'xs')} Use this</button>`) + retry + dismiss;
+  } else actions = retry + dismiss;
+  card.className = 'ai-card' + (status === 'error' ? ' err' : '');
+  card.innerHTML = `
+    <div class="ai-card-head">${icon(status === 'error' ? 'alert' : 'sparkles', 'xs')}
+      <span>${status === 'error' ? 'Couldn’t write that' : esc(AI_LABELS[ai.action] || 'Suggestion')}</span>
+      ${status === 'streaming' ? '<span class="ai-pulse">Writing…</span>' : ''}
+    </div>
+    <div class="ai-card-text ${status === 'streaming' ? 'streaming' : ''}" id="ai-card-text">${esc(status === 'error' ? err : ai.text)}</div>
+    <div class="ai-card-actions">${actions}</div>`;
+  card.hidden = false;
+  if (status !== 'streaming') card.scrollIntoView({ block: 'nearest' });
+  else $('#compose-body').scrollTop = 0;
+}
+
+function acceptAi(mode) {
+  const t = $('#c-body');
+  const before = t.value;
+  const text = cleanAiText(ai.text);
+  if (!text) return;
+  t.value = mode === 'append' && before.trim() ? `${before.replace(/\s+$/, '')}\n\n${text}` : text;
+  hideAiCard();
+  autosizeBody();
+  onComposeChange();
+  t.focus();
+  t.setSelectionRange(t.value.length, t.value.length);
+  toast(mode === 'append' ? 'Added to your draft' : before.trim() ? 'Draft replaced' : 'Draft added', { label: 'Undo', fn: () => {
+    if (!compose.open) return;
+    t.value = before;
+    autosizeBody();
+    onComposeChange();
+  } });
+}
+
+function submitAiPrompt(ev) {
+  ev.preventDefault();
+  const instruction = $('#ai-input').value.trim();
+  const hasDraft = !!$('#c-body').value.trim();
+  const isReply = (compose.kind === 'reply' || compose.kind === 'replyall') && compose.original;
+  if (!instruction && !isReply) { $('#ai-input').focus(); return; }
+  $('#ai-input').value = '';
+  runAi(hasDraft ? (instruction ? 'custom' : 'improve') : isReply ? 'reply' : 'write', instruction);
+}
+
+async function suggestSubject() {
+  const btn = $('#c-subject-ai');
+  if (btn.classList.contains('busy') || !compose.open) return;
+  const req = { ...aiRequest('subject', ''), stream: false, draft: buildBody() };
+  if (!req.draft.trim() && !compose.original) { setComposeStatus('Write your message first, then suggest a subject.', true); return; }
+  btn.classList.add('busy');
+  setComposeStatus('Suggesting a subject…');
+  try {
+    const res = await fetch('/api/ai', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(req) });
+    const data = await res.json().catch(() => ({ error: res.statusText || 'AI request failed' }));
+    if (!res.ok || data.error) throw new Error(data.error || 'AI request failed');
+    const subject = cleanAiText(data.text).split('\n')[0].replace(/^["“']|["”']$/g, '').replace(/\.$/, '').trim();
+    if (!subject) throw new Error('No subject came back. Try again.');
+    if (!compose.open) return;
+    const input = $('#c-subject');
+    const before = input.value;
+    input.value = subject;
+    onComposeChange();
+    setComposeStatus('');
+    if (before.trim()) toast('Subject updated', { label: 'Undo', fn: () => { if (compose.open) { input.value = before; onComposeChange(); } } });
+  } catch (e) {
+    setComposeStatus(e.message, true);
+  } finally {
+    btn.classList.remove('busy');
+  }
+}
+
+// ═════════════════════════ SIGNATURE ═════════════════════════
+function openSignature() {
+  const email = compose.open ? fromEmail() : state.active;
+  if (!email) return;
+  $('#sig-dialog').dataset.email = email;
+  $('#sig-sub').textContent = `Added to the end of messages you send from ${email}. Stored in this browser.`;
+  $('#sig-text').value = signatureFor(email);
+  $('#sig-dialog').hidden = false;
+  setTimeout(() => $('#sig-text').focus(), 30);
+}
+function closeSignature() { $('#sig-dialog').hidden = true; }
+function saveSignature(ev) {
+  ev.preventDefault();
+  const email = $('#sig-dialog').dataset.email;
+  const all = signatures();
+  const text = $('#sig-text').value.replace(/\s+$/, '');
+  if (text) all[email] = text; else delete all[email];
+  storeSet(SIG_KEY, all);
+  closeSignature();
+  if (compose.open) renderSignature();
+  toast(text ? 'Signature saved' : 'Signature removed');
+}
+
+// ═════════════════════════ COMPOSE EVENTS ═════════════════════════
+function bindCompose() {
+  FIELDS.forEach(field => {
+    const input = chipInput(field);
+    input.addEventListener('keydown', ev => {
+      if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
+      const s = compose.suggest && compose.suggest.field === field ? compose.suggest : null;
+      if (s && (ev.key === 'ArrowDown' || ev.key === 'ArrowUp')) {
+        ev.preventDefault();
+        s.index = (s.index + (ev.key === 'ArrowDown' ? 1 : -1) + s.items.length) % s.items.length;
+        renderSuggest();
+        return;
+      }
+      if (s && (ev.key === 'Enter' || ev.key === 'Tab')) { ev.preventDefault(); pickSuggest(s.index); return; }
+      if (ev.key === 'Enter' || ev.key === ',' || ev.key === ';' || (ev.key === 'Tab' && input.value.trim())) {
+        if (input.value.trim()) { ev.preventDefault(); commitInput(field); }
+        else if (ev.key !== 'Tab') ev.preventDefault();
+        return;
+      }
+      if (ev.key === 'Backspace' && !input.value && compose.recipients[field].length) {
+        ev.preventDefault();
+        editChip(field, compose.recipients[field].length - 1);
+      }
+    });
+    input.addEventListener('input', () => {
+      if (/[,;\n]/.test(input.value)) {
+        const parts = input.value.split(/[,;\n]/);
+        const rest = parts.pop();
+        if (addRecipients(field, parts.join(','))) onComposeChange();
+        input.value = rest.trimStart();
+      }
+      updateSuggest(field);
+      onComposeChange();
+    });
+    input.addEventListener('blur', () => {
+      // Let a click on a suggestion land before committing.
+      setTimeout(() => { if (document.activeElement !== input && compose.open) commitInput(field); }, 120);
+    });
+    chipBox(field).addEventListener('click', ev => { if (ev.target === chipBox(field)) input.focus(); });
+    chipBox(field).addEventListener('dblclick', ev => {
+      const chip = ev.target.closest('.chip');
+      if (chip) editChip(chip.dataset.field, Number(chip.dataset.index));
+    });
+  });
+  $('#c-suggest').addEventListener('mousedown', ev => ev.preventDefault());
+  $('#c-subject').addEventListener('input', onComposeChange);
+  $('#c-body').addEventListener('input', () => { autosizeBody(); onComposeChange(); });
+  $('#c-from').addEventListener('change', () => { renderSignature(); onComposeChange(); });
+  $('#ai-form').addEventListener('submit', submitAiPrompt);
+  $('#sig-form').addEventListener('submit', saveSignature);
+  $('#compose-head').addEventListener('click', ev => {
+    if (compose.size === 'min' && !ev.target.closest('button')) setComposeSize('normal');
+  });
+  window.addEventListener('resize', () => { if (compose.open && isMobile() && compose.size !== 'normal') setComposeSize('normal'); });
+  window.addEventListener('beforeunload', ev => {
+    if (compose.open) saveDraftNow();
+    if (compose.pendingSend) { ev.preventDefault(); ev.returnValue = ''; }
+  });
+  // A send interrupted by closing the tab comes back as a normal draft.
+  const d = storeGet(DRAFT_KEY, null);
+  if (d && d.sending) { delete d.sending; storeSet(DRAFT_KEY, d); }
+  updateComposeButton();
 }
 
 // ═════════════════════════ CONNECT (IMAP) ═════════════════════════
@@ -2162,7 +2976,8 @@ function renderShortcuts() {
     [['F'], 'Forward'], [['E'], 'Archive'],
     [['S'], 'Star / unstar'], [['#'], 'Move to trash'],
     [['⇧', 'U'], 'Mark as unread'], [['U'], 'Back to list'],
-    [[mod, '↵'], 'Send message'], [['Esc'], 'Close / cancel'],
+    [[mod, '↵'], 'Send message'], [[mod, 'J'], 'Write with AI'],
+    [['Esc'], 'Close / cancel'],
   ];
   $('#shortcut-grid').innerHTML = list.map(([keys, label]) =>
     `<div><span>${esc(label)}</span><span class="keys">${keys.map(k => `<span class="kbd">${esc(k)}</span>`).join('')}</span></div>`).join('');
@@ -2171,19 +2986,19 @@ function renderShortcuts() {
 // ═════════════════════════ TOAST ═════════════════════════
 let toastTimer = null;
 let toastAction = null;
-function toast(msg, action = null) {
+function toast(msg, action = null, ms = null) {
   const t = $('#toast');
   toastAction = action;
   t.innerHTML = `<span>${esc(msg)}</span>${action ? `<button data-action="toast-action">${esc(action.label)}</button>` : ''}`;
   t.classList.toggle('has-action', !!action);
   t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { t.classList.remove('show'); toastAction = null; }, action ? 6000 : 2800);
+  toastTimer = setTimeout(() => { t.classList.remove('show'); toastAction = null; }, ms || (action ? 6000 : 2800));
 }
 
 // ═════════════════════════ EVENTS ═════════════════════════
 function anyModalOpen() {
-  return !$('#confirm').hidden || !$('#connect').hidden || !$('#shortcuts').hidden;
+  return !$('#confirm').hidden || !$('#connect').hidden || !$('#shortcuts').hidden || !$('#sig-dialog').hidden;
 }
 
 function handleAction(el, ev) {
@@ -2220,14 +3035,25 @@ function handleAction(el, ev) {
       $('#msg-details').hidden = !open;
       break;
     }
+    case 'ai-reply': startReply('reply', { withAi: true }); break;
     case 'close-compose': closeCompose(); break;
-    case 'discard': closeCompose(); break;
+    case 'discard': discardDraft(); break;
     case 'send': sendEmail(); break;
-    case 'toggle-ai': setAiOpen($('#ai-bar').hidden); break;
-    case 'ai-generate': aiGenerate('compose'); break;
-    case 'ai-improve': aiGenerate('improve'); break;
-    case 'show-cc': $('#c-cc-row').hidden = false; el.hidden = true; $('#c-cc').focus(); break;
-    case 'show-bcc': $('#c-bcc-row').hidden = false; el.hidden = true; $('#c-bcc').focus(); break;
+    case 'compose-size': setComposeSize(el.dataset.size); break;
+    case 'show-cc': $('#c-cc-row').hidden = false; el.hidden = true; chipInput('cc').focus(); break;
+    case 'show-bcc': $('#c-bcc-row').hidden = false; el.hidden = true; chipInput('bcc').focus(); break;
+    case 'chip-remove': removeChip(el.dataset.field, Number(el.dataset.index)); break;
+    case 'pick-suggest': pickSuggest(Number(el.dataset.index)); break;
+    case 'toggle-quote': renderQuote($('#c-quote').hidden); break;
+    case 'edit-signature': openSignature(); break;
+    case 'close-sig': closeSignature(); break;
+    case 'toggle-ai': setAiDock($('#ai-dock').hidden); break;
+    case 'ai-run': runAi(el.dataset.ai, el.dataset.instruction || $('#ai-input').value.trim()); $('#ai-input').value = ''; break;
+    case 'ai-stop': stopAi(true); break;
+    case 'ai-retry': retryAi(); break;
+    case 'ai-dismiss': stopAi(); break;
+    case 'ai-accept': acceptAi(el.dataset.mode); break;
+    case 'ai-subject': suggestSubject(); break;
     case 'toast-action': {
       const act = toastAction;
       toastAction = null;
@@ -2255,7 +3081,9 @@ function bindEvents() {
     if (scrim === 'confirm') closeConfirm(false);
     if (scrim === 'connect') closeConnect();
     if (scrim === 'shortcuts') $('#shortcuts').hidden = true;
+    if (scrim === 'sig') closeSignature();
   });
+  bindCompose();
 
   $('#confirm-ok').addEventListener('click', () => closeConfirm(true));
   $('#confirm-cancel').addEventListener('click', () => closeConfirm(false));
@@ -2266,9 +3094,6 @@ function bindEvents() {
     syncSearchUi();
     clearTimeout(searchTimer);
     searchTimer = setTimeout(runSearch, 450);
-  });
-  $('#ai-instruction').addEventListener('keydown', ev => {
-    if (ev.key === 'Enter' && !ev.metaKey && !ev.ctrlKey) { ev.preventDefault(); aiGenerate('compose'); }
   });
   search.addEventListener('keydown', ev => {
     if (ev.key === 'Enter') { ev.preventDefault(); runSearch(); }
@@ -2292,25 +3117,31 @@ function onKeydown(ev) {
     if (!$('#confirm').hidden) { closeConfirm(false); return; }
     if (!$('#shortcuts').hidden) { $('#shortcuts').hidden = true; return; }
     if (!$('#connect').hidden) { closeConnect(); return; }
+    if (!$('#sig-dialog').hidden) { closeSignature(); return; }
     if (!$('#account-menu').hidden) { toggleAccountMenu(false); return; }
-    if (!$('#compose').hidden) { closeCompose(); return; }
+    if (compose.open) {
+      if (compose.suggest) hideSuggest();
+      else if (ai.running) stopAi(true);
+      else if (compose.size === 'max') setComposeSize('normal');
+      else closeCompose();
+      return;
+    }
     if ($('#app').classList.contains('drawer-open')) { closeDrawer(); return; }
     if (tgt === $('#search-input')) { tgt.blur(); return; }
     if ($('#app').classList.contains('reading')) { closeReader(); return; }
     return;
   }
 
-  // Send from anywhere in the compose window.
-  if (ev.key === 'Enter' && (ev.metaKey || ev.ctrlKey) && !$('#compose').hidden && tgt.closest && tgt.closest('#compose')) {
-    ev.preventDefault();
-    sendEmail();
-    return;
+  // Send / toggle AI from anywhere in the compose window.
+  if ((ev.metaKey || ev.ctrlKey) && compose.open && !anyModalOpen() && tgt.closest && tgt.closest('#compose')) {
+    if (ev.key === 'Enter') { ev.preventDefault(); if (tgt.closest('#ai-form')) $('#ai-form').requestSubmit(); else sendEmail(); return; }
+    if (ev.key.toLowerCase() === 'j') { ev.preventDefault(); setAiDock($('#ai-dock').hidden); return; }
   }
 
   // Keep keyboard focus inside open dialogs.
   if (ev.key === 'Tab' && anyModalOpen()) {
     const dlg = document.querySelector('.scrim:not([hidden]) .dialog');
-    const focusables = dlg ? [...dlg.querySelectorAll('button:not([disabled]), input, a[href]')].filter(n => n.offsetParent !== null) : [];
+    const focusables = dlg ? [...dlg.querySelectorAll('button:not([disabled]), input, textarea, select, a[href]')].filter(n => n.offsetParent !== null) : [];
     if (focusables.length) {
       const first = focusables[0], last = focusables[focusables.length - 1];
       if (!dlg.contains(document.activeElement)) { ev.preventDefault(); first.focus(); }
@@ -2360,7 +3191,7 @@ function onKeydown(ev) {
 
 // ═════════════════════════ INIT ═════════════════════════
 async function init() {
-  $('#mod-key').textContent = IS_MAC ? '⌘' : 'Ctrl';
+  document.querySelectorAll('.mod-key').forEach(n => { n.textContent = IS_MAC ? '⌘' : 'Ctrl'; });
   renderThemeButton();
   renderShortcuts();
   renderNav();
