@@ -1343,12 +1343,31 @@ function renderList() {
   }
 }
 
+// One account failing never locks you out: show how to fix it, and let the
+// other accounts stay reachable through the switcher.
 function renderListError(e) {
-  const reconnect = e.needReconnect && isImap()
-    ? `<button class="btn primary" data-action="reconnect">Reconnect account</button>` : '';
+  const acc = activeAccount();
+  const others = state.accounts.length > 1
+    ? `<button class="btn" data-action="pick-account">Switch account</button>` : '';
+  if (e.needAuth && acc && !isImap()) {
+    $('#list-scroll').innerHTML = stateBlock({
+      art: 'lock', err: true, title: 'Sign in again',
+      body: `Google rejected the saved sign-in for ${acc.email} — it may have expired or been revoked. Sign in with Google again to reconnect it.`,
+      buttons: `<a class="btn primary" href="/api/auth">Sign in with Google</a>${others}`,
+    });
+    return;
+  }
+  if (e.needReconnect && isImap()) {
+    $('#list-scroll').innerHTML = stateBlock({
+      art: 'lock', err: true, title: 'Reconnect this account',
+      body: `${acc.email} couldn’t sign in with its saved app password. Enter a new app-specific password to reconnect it.`,
+      buttons: `<button class="btn primary" data-action="reconnect">Reconnect</button>${others}`,
+    });
+    return;
+  }
   $('#list-scroll').innerHTML = stateBlock({
     art: 'alert', err: true, title: 'Couldn’t load messages', body: e.message,
-    buttons: `${reconnect}<button class="btn" data-action="refresh">${icon('refresh', 'sm')} Try again</button>`,
+    buttons: `<button class="btn" data-action="refresh">${icon('refresh', 'sm')} Try again</button>${others}`,
   });
 }
 
@@ -1389,7 +1408,7 @@ async function loadEmails({ append = false } = {}) {
     if (seq !== listSeq) return;
     state.loading = false;
     state.loadingMore = false;
-    if (e.needAuth) { showGate(); return; }
+    if (e.needAuth && !state.accounts.length) { showGate(); return; }
     if (append) { renderList(); toast('Couldn’t load more: ' + e.message); }
     else { state.emails = []; state.next = null; renderListHead(); renderNav(); renderListError(e); }
   }
@@ -1676,7 +1695,7 @@ async function openEmail(id) {
     if (scroller) scroller.scrollTop = 0;
   } catch (e) {
     if (seq !== msgSeq) return;
-    if (e.needAuth) { showGate(); return; }
+    if (e.needAuth && !state.accounts.length) { showGate(); return; }
     renderReaderError(id, e);
   }
 }
@@ -2181,6 +2200,7 @@ function handleAction(el, ev) {
     case 'shortcuts': $('#shortcuts').hidden = false; break;
     case 'close-shortcuts': $('#shortcuts').hidden = true; break;
     case 'account-menu': ev.stopPropagation(); toggleAccountMenu(); break;
+    case 'pick-account': if (isMobile()) openDrawer(); toggleAccountMenu(true); break;
     case 'switch': switchAccount(el.dataset.email); break;
     case 'signout': signOut(el.dataset.email); break;
     case 'connect': openConnect(el.dataset.provider); break;

@@ -86,13 +86,27 @@ function cookieAccounts(req) {
   }
 }
 
+const hasCreds = a => !!(a && (a.refreshToken || a.password));
+const sameCreds = (a, b) =>
+  (a.kind || 'google') === (b.kind || 'google') && (a.refreshToken || '') === (b.refreshToken || '') &&
+  (a.password || '') === (b.password || '') && (a.service || '') === (b.service || '');
+
 // accounts = [{ kind, email, name, refreshToken | password, service }]
 // Env (hard-coded, global) accounts first, then any added on this device.
+// If this device re-signed-in to an env account (e.g. its env refresh token
+// expired), the fresh credentials saved in the cookie take precedence.
 export function getAccounts(req) {
   const env = envAccounts();
+  const cookie = cookieAccounts(req).filter(a => a && a.email);
+  const byEmail = new Map(cookie.map(a => [a.email, a]));
+  const merged = env.map(e => {
+    const o = byEmail.get(e.email);
+    if (!hasCreds(o)) return e;
+    return { ...e, kind: o.kind || 'google', service: o.service, refreshToken: o.refreshToken, password: o.password, name: e.name || o.name || '' };
+  });
   const seen = new Set(env.map(a => a.email));
-  const extra = cookieAccounts(req).filter(a => a && a.email && !seen.has(a.email));
-  return [...env, ...extra];
+  const extra = cookie.filter(a => !seen.has(a.email));
+  return [...merged, ...extra];
 }
 
 export function getActiveEmail(req) {
@@ -100,11 +114,14 @@ export function getActiveEmail(req) {
   return cookies[ACTIVE_COOKIE] || null;
 }
 
-// Persist only the non-env accounts; env (hard-coded) accounts can't be changed.
+// Persist accounts added on this device, plus fresh credentials for env
+// accounts that differ from the env copy. Env accounts themselves can't be removed.
 export function saveAccounts(res, accounts) {
-  const envEmails = new Set(envAccounts().map(a => a.email));
-  const extra = (accounts || []).filter(a => a && a.email && !envEmails.has(a.email));
-  const val = Buffer.from(JSON.stringify(extra)).toString('base64');
+  const envByEmail = new Map(envAccounts().map(a => [a.email, a]));
+  const keep = (accounts || [])
+    .filter(a => a && a.email && hasCreds(a) && !(envByEmail.has(a.email) && sameCreds(a, envByEmail.get(a.email))))
+    .map(({ kind, service, email, name, refreshToken, password }) => ({ kind, service, email, name, refreshToken, password }));
+  const val = Buffer.from(JSON.stringify(keep)).toString('base64');
   appendCookies(res, [
     `${ACCOUNTS_COOKIE}=${val}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${ONE_YEAR}`,
   ]);

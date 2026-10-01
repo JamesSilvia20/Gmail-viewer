@@ -24,7 +24,7 @@ async function handleImap(req, res, account, action, query, body) {
     return res.json(await imapList(account, { folder, q: query.q, pageToken: query.pageToken }));
   } catch (e) {
     const msg = e.message || String(e);
-    const authFail = /auth|login|credential|invalid|denied/i.test(msg);
+    const authFail = !!e.authenticationFailed || /auth|login|credential|invalid|denied/i.test(msg);
     return res.status(authFail ? 401 : 500).json({ error: msg, needReconnect: authFail });
   }
 }
