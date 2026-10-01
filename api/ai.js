@@ -40,9 +40,12 @@ function systemPrompt({ action, senderName, hasSignature }) {
     return 'You write email subject lines. Return ONLY the subject line: at most 9 words, no quotation marks, ' +
       'no "Subject:" prefix, no trailing period. Match the language of the email.';
   }
+  // Signatures usually carry their own sign-off, so avoid doubling it up.
   const closing = hasSignature
-    ? 'Do not add a sign-off name or signature — the app appends the sender\'s signature automatically. A short closing such as "Best," is fine.'
-    : `End with a short closing${senderName ? ` and the sender's first name (${senderName.split(/\s+/)[0]})` : ''}. Never write placeholders like [Your Name].`;
+    ? 'Do not add any sign-off (like "Best,") or name at the end — the app appends the sender\'s signature, which includes it.'
+    : senderName
+      ? `End with a short closing such as "Best," followed by the sender's first name (${senderName.split(/\s+/)[0]}).`
+      : 'Do not add a sign-off or name at the end, and never write placeholders like [Your Name].';
   return [
     'You are an expert email writing assistant built into a mail app.',
     'Return ONLY the email body as plain text, ready to send: no subject line, no markdown, no code fences, ' +
