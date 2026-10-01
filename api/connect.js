@@ -16,13 +16,13 @@ export default async function handler(req, res) {
     });
   }
 
-  const accounts = getAccounts(req);
+  const accounts = await getAccounts(req);
   const entry = { kind: 'imap', service, email, name: name || '', password };
   const idx = accounts.findIndex(a => a.email === email);
   if (idx > -1) accounts[idx] = entry;
   else accounts.push(entry);
 
-  saveAccounts(res, accounts);
-  setActive(res, email);
+  await saveAccounts(res, accounts);
+  await setActive(res, email);
   return res.json({ ok: true, email });
 }

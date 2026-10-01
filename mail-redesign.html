@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-density="comfortable">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Aurora Mail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root {
+  /* Spacing — 4/8 scale */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
+  --s-5: 20px; --s-6: 24px; --s-8: 32px; --s-10: 40px; --s-12: 48px;
+
+  /* Radius scale */
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 22px; --r-full: 999px;
+
+  /* Hero gradient — Aurora (the ONE gradient, reused everywhere) */
+  --aurora: linear-gradient(135deg, #6366F1 0%, #8B5CF6 48%, #D946EF 100%);
+  --aurora-soft: linear-gradient(135deg, rgba(99,102,241,.16), rgba(217,70,239,.16));
+
+  /* Brand primary */
+  --primary: #7C5CFC;
+  --primary-strong: #6D5EF6;
+
+  /* Accent label palette */
+  --c-emerald: #10B981; --c-amber: #F59E0B; --c-rose: #F43F5E;
+  --c-sky: #0EA5E9;     --c-violet: #8B5CF6; --c-pink: #EC4899;
+
+  /* Semantic */
+  --success: #10B981; --warning: #F59E0B; --danger: #F43F5E; --info: #0EA5E9;
+
+  /* Motion */
+  --t-fast: 150ms; --t-base: 200ms; --ease: cubic-bezier(.4,0,.2,1);
+
+  /* Type */
+  --font: 'Inter', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* DARK THEME (default) */
+[data-theme="dark"] {
+  --bg:        #0A0A0F;
+  --bg-grad:   radial-gradient(1200px 800px at 12% -8%, rgba(124,92,252,.10), transparent 60%),
+               radial-gradient(900px 700px at 100% 0%, rgba(217,70,239,.06), transparent 55%),
+               #0A0A0F;
+  --surface:   #101018;
+  --surface-2: #16161F;
+  --surface-3: #1D1D29;
+  --glass:     rgba(22,22,31,.62);
+  --border:    rgba(255,255,255,.07);
+  --border-2:  rgba(255,255,255,.12);
+  --text:      #ECECF4;
+  --text-2:    #9A9AB0;
+  --text-3:    #5E5E76;
+  --unread:    #FBFBFF;
+  --hover:     rgba(255,255,255,.04);
+  --selected:  rgba(124,92,252,.12);
+  --shadow-1:  0 1px 2px rgba(0,0,0,.4);
+  --shadow-2:  0 8px 24px -6px rgba(0,0,0,.55);
+  --shadow-3:  0 24px 64px -12px rgba(0,0,0,.7);
+  --ring:      rgba(139,92,246,.55);
+  color-scheme: dark;
+}
+
+/* LIGHT THEME */
+[data-theme="light"] {
+  --bg:        #F4F4FA;
+  --bg-grad:   radial-gradient(1200px 800px at 10% -10%, rgba(124,92,252,.10), transparent 55%),
+               radial-gradient(900px 700px at 100% 0%, rgba(217,70,239,.07), transparent 50%),
+               #F4F4FA;
+  --surface:   #FFFFFF;
+  --surface-2: #FAFAFE;
+  --surface-3: #F0F0F8;
+  --glass:     rgba(255,255,255,.7);
+  --border:    rgba(15,15,40,.08);
+  --border-2:  rgba(15,15,40,.13);
+  --text:      #15151F;
+  --text-2:    #5A5A70;
+  --text-3:    #9C9CB2;
+  --unread:    #0B0B14;
+  --hover:     rgba(15,15,40,.035);
+  --selected:  rgba(124,92,252,.10);
+  --shadow-1:  0 1px 2px rgba(20,20,50,.06);
+  --shadow-2:  0 10px 30px -8px rgba(30,20,70,.16);
+  --shadow-3:  0 28px 70px -14px rgba(30,20,70,.24);
+  --ring:      rgba(124,92,252,.45);
+  color-scheme: light;
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--font);
+  background: var(--bg-grad); background-attachment: fixed;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  overflow: hidden;
+  transition: background var(--t-base) var(--ease), color var(--t-base) var(--ease);
+}
+button, input, textarea { font-family: inherit; color: inherit; }
+button { cursor: pointer; border: none; background: none; }
+:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; border-radius: var(--r-sm); }
+::selection { background: rgba(139,92,246,.3); }
+
+/* Scrollbars */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 99px; border: 3px solid transparent; background-clip: content-box; }
+*::-webkit-scrollbar-thumb:hover { background: var(--text-3); background-clip: content-box; }
+
+.gradient-text {
+  background: var(--aurora); -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+svg.ic { width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.9;
+  fill: none; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
+
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+.app {
+  display: grid;
+  grid-template-columns: var(--sidebar-w, 268px) minmax(360px, 460px) 1fr;
+  height: 100vh; width: 100vw; overflow: hidden;
+  transition: grid-template-columns var(--t-base) var(--ease);
+}
+.app.collapsed { --sidebar-w: 76px; }
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+.sidebar {
+  background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; padding: var(--s-4); gap: var(--s-2);
+  overflow: hidden; min-width: 0;
+}
+.brand { display: flex; align-items: center; gap: var(--s-3); padding: var(--s-2) var(--s-2) var(--s-4); }
+.brand-mark {
+  width: 38px; height: 38px; border-radius: var(--r-md); background: var(--aurora);
+  display: grid; place-items: center; flex: 0 0 auto;
+  box-shadow: 0 6px 20px -4px rgba(124,92,252,.6);
+}
+.brand-mark svg { width: 21px; height: 21px; stroke: #fff; stroke-width: 2.2; fill: none; }
+.brand-name { font-size: 18px; font-weight: 700; letter-spacing: -.02em; white-space: nowrap; }
+.brand-name b { font-weight: 800; }
+.collapse-btn {
+  margin-left: auto; color: var(--text-3); width: 30px; height: 30px;
+  border-radius: var(--r-sm); display: grid; place-items: center;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.collapse-btn:hover { background: var(--hover); color: var(--text); }
+
+.compose {
+  display: flex; align-items: center; justify-content: center; gap: var(--s-2);
+  background: var(--aurora); color: #fff; font-weight: 650; font-size: 15px;
+  padding: 13px var(--s-4); border-radius: var(--r-md); white-space: nowrap;
+  box-shadow: 0 8px 24px -6px rgba(124,92,252,.55);
+  transition: transform var(--t-fast) var(--ease), box-shadow var(--t-fast) var(--ease), filter var(--t-fast);
+}
+.compose:hover { transform: translateY(-1px); box-shadow: 0 12px 30px -6px rgba(124,92,252,.7); filter: saturate(1.1); }
+.compose:active { transform: translateY(0); }
+.compose svg { stroke: #fff; }
+
+.nav { display: flex; flex-direction: column; gap: 2px; margin-top: var(--s-2); }
+.sect-label {
+  font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-3); padding: var(--s-4) var(--s-3) var(--s-2); white-space: nowrap;
+}
+.nav-item {
+  display: flex; align-items: center; gap: var(--s-3); padding: 9px var(--s-3);
+  border-radius: var(--r-sm); color: var(--text-2); font-size: 14px; font-weight: 500;
+  position: relative; white-space: nowrap; width: 100%; text-align: left;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+.nav-item:hover { background: var(--hover); color: var(--text); }
+.nav-item .label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.nav-item .count {
+  font-size: 12px; font-weight: 600; color: var(--text-3); font-variant-numeric: tabular-nums;
+}
+.nav-item.active {
+  background: var(--aurora-soft); color: var(--text);
+}
+.nav-item.active::before {
+  content: ""; position: absolute; left: -16px; top: 50%; transform: translateY(-50%);
+  width: 4px; height: 22px; border-radius: 99px; background: var(--aurora);
+}
+.nav-item.active svg { stroke: var(--primary); }
+.nav-item.active .count { color: var(--primary); }
+.dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; }
+
+.sidebar .spacer { flex: 1; }
+
+.profile {
+  display: flex; align-items: center; gap: var(--s-3); padding: var(--s-2);
+  border-radius: var(--r-md); border: 1px solid var(--border);
+  background: var(--surface-2); margin-top: var(--s-2); white-space: nowrap;
+  transition: border-color var(--t-fast);
+}
+.profile:hover { border-color: var(--border-2); }
+.profile .meta { min-width: 0; flex: 1; }
+.profile .nm { font-size: 13.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+.profile .em { font-size: 12px; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; }
+.profile .chev { color: var(--text-3); }
+
+.avatar {
+  border-radius: 50%; display: grid; place-items: center; flex: 0 0 auto;
+  color: #fff; font-weight: 700; font-size: 13px; letter-spacing: -.01em; overflow: hidden;
+}
+
+/* collapsed sidebar */
+.app.collapsed .brand-name, .app.collapsed .compose span,
+.app.collapsed .nav-item .label, .app.collapsed .nav-item .count,
+.app.collapsed .sect-label, .app.collapsed .profile .meta,
+.app.collapsed .profile .chev { display: none; }
+.app.collapsed .compose { padding: 13px 0; }
+.app.collapsed .nav-item { justify-content: center; }
+.app.collapsed .brand { justify-content: center; }
+.app.collapsed .collapse-btn { display: none; }
+.app.collapsed .profile { justify-content: center; }
+.app.collapsed .nav-item .dot { position: absolute; top: 6px; right: 10px; }
+
+/* ============================================================
+   LIST COLUMN
+   ============================================================ */
+.list-col { display: flex; flex-direction: column; min-width: 0; border-right: 1px solid var(--border); background: var(--surface); }
+
+.topbar {
+  display: flex; align-items: center; gap: var(--s-3); padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--border); position: relative; z-index: 5;
+}
+.search {
+  flex: 1; position: relative; min-width: 0;
+}
+.search .si { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--text-3); }
+.search input {
+  width: 100%; background: var(--glass); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border: 1px solid var(--border-2); border-radius: var(--r-md); padding: 10px 70px 10px 40px;
+  font-size: 14px; outline: none; transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.search input::placeholder { color: var(--text-3); }
+.search input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--selected); }
+.kbd {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  font-family: var(--mono); font-size: 11px; color: var(--text-3);
+  border: 1px solid var(--border-2); border-radius: 6px; padding: 2px 7px;
+  pointer-events: none; background: var(--surface-2);
+}
+.icon-btn {
+  width: 38px; height: 38px; border-radius: var(--r-md); display: grid; place-items: center;
+  color: var(--text-2); border: 1px solid transparent;
+  transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+}
+.icon-btn:hover { background: var(--hover); color: var(--text); border-color: var(--border); }
+.account-chip {
+  display: flex; align-items: center; gap: var(--s-2); padding: 4px 12px 4px 4px;
+  border: 1px solid var(--border-2); border-radius: var(--r-full); white-space: nowrap;
+  transition: border-color var(--t-fast);
+}
+.account-chip:hover { border-color: var(--primary); }
+.account-chip .nm { font-size: 13px; font-weight: 500; }
+
+/* list toolbar */
+.list-tools {
+  display: flex; align-items: center; gap: var(--s-2); padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--border); flex-wrap: wrap;
+}
+.scopes { display: flex; gap: 6px; flex: 1; min-width: 0; overflow: hidden; }
+.scope {
+  font-size: 12.5px; font-weight: 550; padding: 5px 12px; border-radius: var(--r-full);
+  color: var(--text-2); border: 1px solid var(--border); white-space: nowrap;
+  transition: all var(--t-fast);
+}
+.scope:hover { color: var(--text); border-color: var(--border-2); }
+.scope.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+.seg {
+  display: flex; border: 1px solid var(--border); border-radius: var(--r-sm); overflow: hidden;
+}
+.seg button { padding: 6px 9px; color: var(--text-3); display: grid; place-items: center; transition: all var(--t-fast); }
+.seg button.active { background: var(--surface-3); color: var(--text); }
+.seg button:hover:not(.active) { color: var(--text-2); }
+
+.list { flex: 1; overflow-y: auto; overflow-x: hidden; }
+.group-head {
+  position: sticky; top: 0; z-index: 2; padding: var(--s-4) var(--s-4) var(--s-2);
+  font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--text-3); background: linear-gradient(var(--surface) 70%, transparent);
+  backdrop-filter: blur(2px);
+}
+
+/* Message row */
+.row {
+  display: grid; grid-template-columns: auto auto 1fr auto; align-items: start;
+  gap: var(--s-3); padding: 13px var(--s-4); cursor: pointer; position: relative;
+  border-bottom: 1px solid var(--border);
+  transition: background var(--t-fast);
+}
+.row:hover { background: var(--hover); }
+.row.selected { background: var(--selected); }
+.row.selected::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--aurora);
+}
+.row .checkwrap { padding-top: 2px; opacity: 0; transition: opacity var(--t-fast); }
+.row:hover .checkwrap, .row .checkwrap.checked, .list.selecting .checkwrap { opacity: 1; }
+.cb {
+  width: 18px; height: 18px; border-radius: 6px; border: 1.8px solid var(--border-2);
+  display: grid; place-items: center; transition: all var(--t-fast); color: transparent;
+}
+.cb.checked { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+.row .ava-wrap { position: relative; padding-top: 1px; }
+.row .avatar { width: 40px; height: 40px; font-size: 15px; }
+.unread-dot {
+  position: absolute; top: -2px; left: -7px; width: 9px; height: 9px; border-radius: 50%;
+  background: var(--aurora); box-shadow: 0 0 0 3px var(--surface);
+}
+.row.read .unread-dot { display: none; }
+
+.row .body { min-width: 0; }
+.row .line1 { display: flex; align-items: center; gap: var(--s-2); }
+.row .sender { font-size: 14px; font-weight: 550; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row.unread .sender { font-weight: 750; color: var(--unread); }
+.row .time { margin-left: auto; font-size: 12px; color: var(--text-3); font-variant-numeric: tabular-nums; white-space: nowrap; flex: 0 0 auto; }
+.row.unread .time { color: var(--text-2); font-weight: 600; }
+.row .subject { font-size: 13.5px; color: var(--text); margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row.unread .subject { font-weight: 650; }
+.row .snippet { font-size: 13px; color: var(--text-2); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .chips { display: flex; gap: 6px; margin-top: 7px; flex-wrap: wrap; align-items: center; }
+.chip {
+  font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: var(--r-full);
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.chip .dot { width: 6px; height: 6px; }
+.thread-count {
+  font-size: 11px; font-weight: 700; color: var(--text-2); background: var(--surface-3);
+  border-radius: var(--r-full); padding: 1px 7px;
+}
+.attach-ic { color: var(--text-3); }
+
+.row .actions {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
+}
+.star { color: var(--text-3); transition: color var(--t-fast), transform var(--t-fast); }
+.star:hover { transform: scale(1.18); }
+.star.on { color: var(--c-amber); }
+.star.on svg { fill: var(--c-amber); }
+.hover-actions { display: flex; gap: 2px; opacity: 0; transform: translateX(6px); transition: all var(--t-fast); }
+.row:hover .hover-actions { opacity: 1; transform: none; }
+.ha-btn { width: 30px; height: 30px; border-radius: var(--r-sm); display: grid; place-items: center; color: var(--text-3); transition: all var(--t-fast); }
+.ha-btn:hover { background: var(--surface-3); color: var(--text); }
+.ha-btn.danger:hover { color: var(--danger); }
+
+/* compact density */
+[data-density="compact"] .row { padding: 8px var(--s-4); grid-template-columns: auto auto 1fr auto; }
+[data-density="compact"] .row .avatar { width: 30px; height: 30px; font-size: 12px; }
+[data-density="compact"] .row .subject, [data-density="compact"] .row .snippet { display: none; }
+[data-density="compact"] .row .body { display: flex; align-items: baseline; gap: var(--s-3); }
+[data-density="compact"] .row .line1 { flex: 0 0 150px; }
+[data-density="compact"] .row .chips { margin-top: 0; }
+[data-density="compact"] .row.compact-sub::after {
+  content: attr(data-subject); font-size: 13px; color: var(--text-2); overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+}
+[data-density="compact"] .row.unread.compact-sub::after { color: var(--text); font-weight: 600; }
+
+/* ============================================================
+   READING PANE
+   ============================================================ */
+.reader { min-width: 0; display: flex; flex-direction: column; background: var(--surface-2); overflow: hidden; }
+.reader-scroll { flex: 1; overflow-y: auto; }
+.reader .back-btn { display: none; }
+
+.thread-head { padding: var(--s-6) var(--s-8) var(--s-4); border-bottom: 1px solid var(--border); }
+.thread-head .top { display: flex; align-items: flex-start; gap: var(--s-4); }
+.thread-subject { font-size: 23px; font-weight: 750; letter-spacing: -.025em; line-height: 1.25; flex: 1; }
+.thread-head .labels { display: flex; gap: 7px; margin-top: var(--s-3); flex-wrap: wrap; }
+
+.action-bar {
+  display: flex; align-items: center; gap: 6px; padding: var(--s-3) var(--s-8);
+  border-bottom: 1px solid var(--border); flex-wrap: wrap;
+  position: sticky; top: 0; background: var(--surface-2); z-index: 3;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; border-radius: var(--r-sm);
+  font-size: 13.5px; font-weight: 600; color: var(--text-2);
+  border: 1px solid var(--border); transition: all var(--t-fast);
+}
+.btn:hover { background: var(--hover); color: var(--text); border-color: var(--border-2); }
+.btn-primary {
+  background: var(--aurora); color: #fff; border-color: transparent;
+  box-shadow: 0 6px 18px -6px rgba(124,92,252,.5);
+}
+.btn-primary:hover { color: #fff; filter: saturate(1.1) brightness(1.05); transform: translateY(-1px); }
+.btn-primary svg { stroke: #fff; }
+.action-bar .sep { width: 1px; height: 22px; background: var(--border); margin: 0 4px; }
+.action-bar .grow { flex: 1; }
+
+/* message in thread */
+.msg { padding: var(--s-6) var(--s-8); border-bottom: 1px solid var(--border); }
+.msg-head { display: flex; align-items: center; gap: var(--s-3); }
+.msg-head .avatar { width: 44px; height: 44px; font-size: 16px; }
+.msg-from { min-width: 0; flex: 1; }
+.msg-from .nm { font-size: 15px; font-weight: 700; }
+.msg-from .addr { font-size: 13px; color: var(--text-2); }
+.msg-from .to { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+.msg-meta { display: flex; align-items: center; gap: var(--s-2); color: var(--text-3); font-size: 12.5px; white-space: nowrap; }
+.msg-body { font-size: 15px; line-height: 1.72; color: var(--text); margin-top: var(--s-5); max-width: 70ch; }
+.msg-body p { margin-bottom: var(--s-4); }
+.msg-body strong { color: var(--unread); font-weight: 700; }
+.msg-body a { color: var(--primary); text-decoration: none; border-bottom: 1px solid var(--selected); }
+.msg-body ul { margin: 0 0 var(--s-4) var(--s-5); }
+.msg-body li { margin-bottom: 6px; }
+.signature { color: var(--text-2); font-size: 14px; line-height: 1.6; }
+
+/* collapsed earlier message */
+.msg.collapsed { padding: var(--s-4) var(--s-8); cursor: pointer; transition: background var(--t-fast); }
+.msg.collapsed:hover { background: var(--hover); }
+.msg.collapsed .msg-body, .msg.collapsed .msg-from .to, .msg.collapsed .attachments { display: none; }
+.msg.collapsed .collapsed-snip { font-size: 13px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.msg .collapsed-snip { display: none; }
+.msg.collapsed .msg-head { gap: var(--s-3); }
+.msg.collapsed .avatar { width: 32px; height: 32px; font-size: 12px; }
+
+/* attachments */
+.attachments { display: flex; gap: var(--s-3); margin-top: var(--s-5); flex-wrap: wrap; }
+.att-card {
+  display: flex; align-items: center; gap: var(--s-3); padding: var(--s-3); width: 230px;
+  border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface);
+  transition: all var(--t-fast); cursor: pointer;
+}
+.att-card:hover { border-color: var(--border-2); box-shadow: var(--shadow-2); transform: translateY(-2px); }
+.att-icon { width: 40px; height: 40px; border-radius: var(--r-sm); display: grid; place-items: center; color: #fff; flex: 0 0 auto; }
+.att-meta { min-width: 0; }
+.att-name { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.att-size { font-size: 11.5px; color: var(--text-3); }
+
+/* inline reply */
+.reply-box { margin: var(--s-6) var(--s-8) var(--s-8); border: 1px solid var(--border-2); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-1); overflow: hidden; }
+.reply-head { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text-2); }
+.reply-head .to-pill { font-weight: 600; color: var(--text); }
+.reply-box textarea { width: 100%; min-height: 96px; padding: var(--s-4); background: none; border: none; resize: vertical; font-size: 14.5px; line-height: 1.6; outline: none; }
+.reply-foot { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-3) var(--s-4); border-top: 1px solid var(--border); }
+.fmt-bar { display: flex; gap: 2px; }
+.fmt-bar button { width: 32px; height: 32px; border-radius: var(--r-sm); display: grid; place-items: center; color: var(--text-3); transition: all var(--t-fast); }
+.fmt-bar button:hover { background: var(--hover); color: var(--text); }
+
+/* empty state */
+.empty { flex: 1; display: grid; place-items: center; padding: var(--s-8); text-align: center; }
+.empty .inner { max-width: 360px; }
+.empty .glyph {
+  width: 96px; height: 96px; margin: 0 auto var(--s-6); border-radius: var(--r-xl);
+  background: var(--aurora-soft); display: grid; place-items: center; position: relative;
+  border: 1px solid var(--border);
+}
+.empty .glyph::after { content: ""; position: absolute; inset: -1px; border-radius: var(--r-xl); background: var(--aurora); opacity: .12; filter: blur(18px); z-index: -1; }
+.empty .glyph svg { width: 40px; height: 40px; stroke: var(--primary); stroke-width: 1.6; }
+.empty h2 { font-size: 21px; font-weight: 750; letter-spacing: -.02em; }
+.empty p { color: var(--text-2); margin-top: var(--s-2); font-size: 14.5px; line-height: 1.6; }
+.empty .hintrow { display: flex; gap: var(--s-4); justify-content: center; margin-top: var(--s-6); color: var(--text-3); font-size: 12.5px; }
+.empty .hintrow .kbd2 { font-family: var(--mono); border: 1px solid var(--border-2); border-radius: 6px; padding: 2px 7px; }
+
+/* ============================================================
+   COMPOSE SLIDE-OVER
+   ============================================================ */
+.scrim { position: fixed; inset: 0; background: rgba(5,5,12,.5); opacity: 0; pointer-events: none; transition: opacity var(--t-base); z-index: 40; }
+.scrim.show { opacity: 1; pointer-events: auto; }
+.composer {
+  position: fixed; right: var(--s-6); bottom: var(--s-6); width: 600px; max-width: calc(100vw - 32px);
+  background: var(--glass); -webkit-backdrop-filter: blur(28px) saturate(1.4); backdrop-filter: blur(28px) saturate(1.4);
+  border: 1px solid var(--border-2); border-radius: var(--r-xl); box-shadow: var(--shadow-3);
+  z-index: 50; transform: translateY(140%); opacity: 0; transition: transform var(--t-base) var(--ease), opacity var(--t-base);
+  display: flex; flex-direction: column; max-height: min(680px, calc(100vh - 48px)); overflow: hidden;
+}
+.composer.show { transform: none; opacity: 1; }
+.composer-head { display: flex; align-items: center; padding: var(--s-4) var(--s-5); border-bottom: 1px solid var(--border); }
+.composer-head h3 { font-size: 15px; font-weight: 700; flex: 1; }
+.composer-head .icon-btn { width: 32px; height: 32px; }
+.field { display: flex; align-items: center; gap: var(--s-3); padding: 0 var(--s-5); border-bottom: 1px solid var(--border); }
+.field label { font-size: 13px; color: var(--text-3); width: 44px; flex: 0 0 auto; }
+.field input { flex: 1; padding: 13px 0; background: none; border: none; outline: none; font-size: 14px; }
+.field .cc-toggle { font-size: 12.5px; color: var(--text-2); font-weight: 600; padding: 4px 8px; border-radius: 6px; }
+.field .cc-toggle:hover { background: var(--hover); color: var(--text); }
+.composer textarea.cmp-body { flex: 1; min-height: 160px; padding: var(--s-5); background: none; border: none; outline: none; resize: none; font-size: 15px; line-height: 1.65; }
+.composer-foot { display: flex; align-items: center; gap: var(--s-2); padding: var(--s-4) var(--s-5); border-top: 1px solid var(--border); }
+
+/* ============================================================
+   TOASTS
+   ============================================================ */
+.toasts { position: fixed; bottom: var(--s-6); left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; gap: var(--s-2); z-index: 60; align-items: center; }
+.toast {
+  display: flex; align-items: center; gap: var(--s-3); padding: 11px var(--s-4); border-radius: var(--r-md);
+  background: var(--surface-3); border: 1px solid var(--border-2); box-shadow: var(--shadow-3);
+  font-size: 13.5px; font-weight: 550; min-width: 240px;
+  animation: toastIn var(--t-base) var(--ease);
+}
+.toast .ti { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; color: #fff; flex: 0 0 auto; }
+.toast .undo { margin-left: auto; color: var(--primary); font-weight: 700; font-size: 13px; }
+.toast.out { animation: toastOut var(--t-base) var(--ease) forwards; }
+@keyframes toastIn { from { transform: translateY(16px); opacity: 0; } }
+@keyframes toastOut { to { transform: translateY(16px); opacity: 0; } }
+
+/* ============================================================
+   SKELETONS
+   ============================================================ */
+.skel-row { display: grid; grid-template-columns: 40px 1fr; gap: var(--s-3); padding: 13px var(--s-4); border-bottom: 1px solid var(--border); }
+.skel { background: linear-gradient(90deg, var(--surface-3) 25%, var(--surface-2) 50%, var(--surface-3) 75%); background-size: 200% 100%; animation: shimmer 1.3s infinite; border-radius: 7px; }
+.skel.circ { border-radius: 50%; width: 40px; height: 40px; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1100px) {
+  .app:not(.collapsed) { --sidebar-w: 76px; }
+  .app .brand-name, .app .compose span, .app .nav-item .label, .app .nav-item .count,
+  .app .sect-label, .app .profile .meta, .app .profile .chev { display: none; }
+  .app .compose { padding: 13px 0; }
+  .app .nav-item, .app .brand, .app .profile { justify-content: center; }
+  .app .collapse-btn { display: none; }
+  .app .nav-item .dot { position: absolute; top: 6px; right: 10px; }
+  .app { grid-template-columns: 76px minmax(320px, 420px) 1fr; }
+}
+@media (max-width: 820px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 30; width: 268px !important;
+    transform: translateX(-100%); transition: transform var(--t-base) var(--ease); box-shadow: var(--shadow-3); }
+  .app .brand-name, .app .compose span, .app .nav-item .label, .app .nav-item .count,
+  .app .sect-label, .app .profile .meta, .app .profile .chev { display: revert; }
+  .app .compose { padding: 13px var(--s-4); }
+  .app .nav-item, .app .brand, .app .profile { justify-content: flex-start; }
+  body.menu-open .sidebar { transform: none; }
+  .list-col { border-right: none; }
+  .reader { position: fixed; inset: 0; z-index: 20; transform: translateX(100%); transition: transform var(--t-base) var(--ease); }
+  body.reading .reader { transform: none; }
+  .reader .back-btn { display: inline-flex; }
+  .menu-toggle { display: grid !important; }
+  .thread-head, .msg, .action-bar, .reply-box { padding-left: var(--s-5); padding-right: var(--s-5); }
+  .reply-box { margin-left: var(--s-5); margin-right: var(--s-5); }
+}
+.menu-toggle { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" aria-label="Mailbox navigation">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M3 7l9 6 9-6M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>
+      </div>
+      <span class="brand-name">Aurora<b>Mail</b></span>
+      <button class="collapse-btn" id="collapseBtn" aria-label="Collapse sidebar" title="Collapse sidebar">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+    </div>
+
+    <button class="compose" id="composeBtn">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      <span>Compose</span>
+    </button>
+
+    <nav class="nav" id="nav" aria-label="Folders"></nav>
+
+    <div class="sect-label">Labels</div>
+    <nav class="nav" id="labelsNav" aria-label="Labels"></nav>
+
+    <div class="spacer"></div>
+
+    <button class="profile">
+      <div class="avatar" style="width:38px;height:38px;background:linear-gradient(135deg,#6366F1,#D946EF)">JS</div>
+      <div class="meta">
+        <div class="nm">James Silvia</div>
+        <div class="em">jamessilviaicc@gmail.com</div>
+      </div>
+      <svg class="ic chev" viewBox="0 0 24 24"><path d="M8 9l4-4 4 4M16 15l-4 4-4-4"/></svg>
+    </button>
+  </aside>
+
+  <!-- ============ LIST COLUMN ============ -->
+  <section class="list-col" aria-label="Message list">
+    <div class="topbar">
+      <button class="icon-btn menu-toggle" id="menuToggle" aria-label="Open menu">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+      </button>
+      <div class="search" role="search">
+        <span class="si"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
+        <input id="searchInput" type="search" placeholder="Search mail" aria-label="Search mail" />
+        <span class="kbd">⌘K</span>
+      </div>
+      <button class="icon-btn" id="themeToggle" aria-label="Toggle color theme" title="Toggle theme">
+        <svg class="ic" id="themeIcon" viewBox="0 0 24 24"></svg>
+      </button>
+      <button class="account-chip" aria-label="Account: James Silvia">
+        <div class="avatar" style="width:30px;height:30px;font-size:12px;background:linear-gradient(135deg,#6366F1,#D946EF)">JS</div>
+        <span class="nm">James</span>
+        <svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+    </div>
+
+    <div class="list-tools">
+      <div class="scopes" id="scopes"></div>
+      <div class="seg" role="group" aria-label="Density">
+        <button id="densComfort" class="active" aria-label="Comfortable density" title="Comfortable">
+          <svg class="ic" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+        <button id="densCompact" aria-label="Compact density" title="Compact">
+          <svg class="ic" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M3 5h18M3 9h18M3 13h18M3 17h18M3 21h18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="list" id="list" aria-label="Messages"></div>
+  </section>
+
+  <!-- ============ READING PANE ============ -->
+  <section class="reader" id="reader" aria-label="Reading pane"></section>
+
+</div>
+
+<!-- ============ COMPOSE ============ -->
+<div class="scrim" id="scrim"></div>
+<div class="composer" id="composer" role="dialog" aria-modal="true" aria-label="Compose message">
+  <div class="composer-head">
+    <h3>New message</h3>
+    <button class="icon-btn" id="composeClose" aria-label="Close composer">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="field"><label for="cmpTo">To</label><input id="cmpTo" placeholder="recipients@example.com" /><button class="cc-toggle" id="ccToggle">Cc Bcc</button></div>
+  <div class="field" id="ccField" hidden><label for="cmpCc">Cc</label><input id="cmpCc" placeholder="cc@example.com" /></div>
+  <div class="field" id="bccField" hidden><label for="cmpBcc">Bcc</label><input id="cmpBcc" placeholder="bcc@example.com" /></div>
+  <div class="field"><label for="cmpSub">Subject</label><input id="cmpSub" placeholder="Subject" /></div>
+  <textarea class="cmp-body" placeholder="Write something brilliant…"></textarea>
+  <div class="composer-foot">
+    <button class="btn btn-primary" id="sendBtn"><svg class="ic" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg> Send</button>
+    <div class="fmt-bar">
+      <button title="Bold" aria-label="Bold"><svg class="ic" viewBox="0 0 24 24"><path d="M6 4h8a4 4 0 0 1 0 8H6zM6 12h9a4 4 0 0 1 0 8H6z"/></svg></button>
+      <button title="Italic" aria-label="Italic"><svg class="ic" viewBox="0 0 24 24"><path d="M19 4h-9M14 20H5M15 4L9 20"/></svg></button>
+      <button title="Link" aria-label="Insert link"><svg class="ic" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></button>
+      <button title="Attach" aria-label="Attach file"><svg class="ic" viewBox="0 0 24 24"><path d="M21 11.5l-9 9a5 5 0 0 1-7-7l9-9a3.5 3.5 0 0 1 5 5l-9 9a1.5 1.5 0 0 1-2-2l8-8"/></svg></button>
+      <button title="Emoji" aria-label="Insert emoji"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg></button>
+    </div>
+    <div style="flex:1"></div>
+    <button class="icon-btn" id="composeTrash" aria-label="Discard draft"><svg class="ic" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg></button>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+/* ============================================================
+   ICONS (one consistent stroke set)
+   ============================================================ */
+const I = {
+  inbox:'<path d="M3 12h5l2 3h4l2-3h5M5 5h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/>',
+  star:'<path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.8 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z"/>',
+  sent:'<path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>',
+  draft:'<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  spam:'<path d="M12 9v4m0 4h.01M10.3 3.9l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3l-8-14a2 2 0 0 0-3.4 0z"/>',
+  trash:'<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/>',
+  all:'<path d="M22 12.5V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h8M2 7l10 6 10-6"/>',
+  archive:'<path d="M21 8v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8M2 4h20v4H2zM10 12h4"/>',
+  snooze:'<path d="M12 7v5l3 2M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"/>',
+  reply:'<path d="M9 17l-5-5 5-5M4 12h11a5 5 0 0 1 5 5v2"/>',
+  replyAll:'<path d="M7 17l-5-5 5-5M12 17l-5-5 5-5M11 12h6a4 4 0 0 1 4 4v2"/>',
+  forward:'<path d="M15 17l5-5-5-5M20 12H9a5 5 0 0 0-5 5v2"/>',
+  more:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
+  paperclip:'<path d="M21 11.5l-9 9a5 5 0 0 1-7-7l9-9a3.5 3.5 0 0 1 5 5l-9 9a1.5 1.5 0 0 1-2-2l8-8"/>',
+  check:'<path d="M20 6L9 17l-5-5"/>',
+  back:'<path d="M19 12H5M12 19l-7-7 7-7"/>',
+  mailOpen:'<path d="M3 9l9-6 9 6v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"/><path d="M3 9l9 6 9-6"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+};
+const ic = (n, w=18) => `<svg class="ic" viewBox="0 0 24 24" style="width:${w}px;height:${w}px">${I[n]}</svg>`;
+
+/* avatar gradient generated from name */
+const PALETTES = [['#6366F1','#D946EF'],['#0EA5E9','#6366F1'],['#10B981','#0EA5E9'],
+  ['#F59E0B','#F43F5E'],['#EC4899','#8B5CF6'],['#8B5CF6','#6366F1'],['#F43F5E','#F59E0B'],['#14B8A6','#10B981']];
+function hash(s){let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h;}
+function avatarStyle(name){const p=PALETTES[hash(name)%PALETTES.length];return `background:linear-gradient(135deg,${p[0]},${p[1]})`;}
+function initials(name){const w=name.replace(/[^\w\s]/g,'').trim().split(/\s+/);return ((w[0]?.[0]||'')+(w[1]?.[0]||'')).toUpperCase()||name[0]?.toUpperCase();}
+
+/* ============================================================
+   LABELS
+   ============================================================ */
+const LABELS = {
+  work:    {name:'Work',     color:'var(--c-sky)'},
+  design:  {name:'Design',   color:'var(--c-violet)'},
+  finance: {name:'Finance',  color:'var(--c-emerald)'},
+  travel:  {name:'Travel',   color:'var(--c-amber)'},
+  personal:{name:'Personal', color:'var(--c-pink)'},
+  urgent:  {name:'Urgent',   color:'var(--c-rose)'},
+};
+function chipFor(key){
+  const l = LABELS[key]; if(!l) return '';
+  return `<span class="chip" style="color:${l.color};background:color-mix(in srgb, ${l.color} 14%, transparent)"><span class="dot" style="background:${l.color}"></span>${l.name}</span>`;
+}
+
+/* ============================================================
+   SAMPLE DATA
+   ============================================================ */
+const EMAILS = [
+  { id:1, group:'Today', sender:'Linear', email:'updates@linear.app', subject:'Cycle 24 is now complete — here\'s your summary',
+    snippet:'Your team shipped 38 issues this cycle, a 12% increase. Two projects moved to Done…', time:'9:42 AM',
+    unread:true, starred:false, labels:['work'], attachments:[], thread:[
+      {from:'Linear', email:'updates@linear.app', to:'me', time:'Today, 9:42 AM', html:
+        '<p>Hi James,</p><p>Your team just wrapped <strong>Cycle 24</strong>. Here\'s how things landed:</p><ul><li><strong>38 issues</strong> shipped — up 12% from last cycle</li><li>2 projects moved to <strong>Done</strong></li><li>Average cycle time dropped to 2.3 days</li></ul><p>Momentum is looking great. Keep it up.</p><p class="signature">— The Linear Team</p>'}
+    ]},
+  { id:2, group:'Today', sender:'Maya Chen', email:'maya.chen@figma.com', subject:'Re: Aurora design system — final review',
+    snippet:'Love where this is heading! I left a few comments on the gradient tokens and the…', time:'8:15 AM',
+    unread:true, starred:true, labels:['design','work'], attachments:[{name:'aurora-tokens.fig',size:'4.2 MB',type:'fig'}],
+    thread:[
+      {from:'James Silvia', email:'jamessilviaicc@gmail.com', to:'Maya Chen', time:'Yesterday, 6:30 PM', collapsed:true,
+        snip:'Sharing the latest token sheet — let me know what you think before we lock it…', html:'<p>Hey Maya, sharing the latest token sheet — let me know what you think before we lock it for engineering. Focused on getting the one hero gradient consistent everywhere.</p>'},
+      {from:'Maya Chen', email:'maya.chen@figma.com', to:'James Silvia', time:'Today, 8:15 AM', html:
+        '<p>Love where this is heading! 🎨</p><p>I left a few comments on the gradient tokens and the spacing scale. Two quick things:</p><ul><li>The <strong>aurora</strong> gradient reads beautifully on the Compose button — let\'s make sure it stays the <em>only</em> gradient.</li><li>Bump the empty-state glyph radius to match the 22px scale.</li></ul><p>Otherwise this is ready to hand off. Attaching the updated file.</p><p class="signature">Maya Chen<br>Principal Product Designer · Figma</p>'}
+    ]},
+  { id:3, group:'Today', sender:'GitHub', email:'noreply@github.com', subject:'[aurora-mail] Pull request #214 approved',
+    snippet:'kristylsilvia approved your changes. 2 of 2 checks passed. Ready to merge into main.', time:'7:58 AM',
+    unread:false, starred:false, labels:['work'], attachments:[], thread:[
+      {from:'GitHub', email:'noreply@github.com', to:'me', time:'Today, 7:58 AM', html:
+        '<p><strong>kristylsilvia</strong> approved your pull request <a href="#">#214 — Redesign reading pane</a>.</p><p>✅ All 2 checks have passed. This branch is ready to merge into <strong>main</strong>.</p><p><a href="#">View pull request →</a></p>'}
+    ]},
+  { id:4, group:'Today', sender:'Notion Calendar', email:'calendar@notion.so', subject:'Reminder: Design sync at 11:00 AM',
+    snippet:'Your meeting "Weekly Design Sync" starts in 1 hour with Maya, Theo and 3 others.', time:'7:30 AM',
+    unread:false, starred:false, labels:[], attachments:[], thread:[
+      {from:'Notion Calendar', email:'calendar@notion.so', to:'me', time:'Today, 7:30 AM', html:
+        '<p>Your meeting <strong>Weekly Design Sync</strong> starts in 1 hour.</p><p>📍 Google Meet · 11:00 – 11:45 AM<br>👥 Maya Chen, Theo Park, +3 others</p>'}
+    ]},
+
+  { id:5, group:'Yesterday', sender:'Stripe', email:'receipts@stripe.com', subject:'Your payment of $49.00 was successful',
+    snippet:'Thanks for your payment. Your Pro subscription renews on June 28, 2026. Receipt attached.', time:'4:21 PM',
+    unread:false, starred:false, labels:['finance'], attachments:[{name:'receipt-may.pdf',size:'82 KB',type:'pdf'}],
+    thread:[ {from:'Stripe', email:'receipts@stripe.com', to:'me', time:'Yesterday, 4:21 PM', html:
+      '<p>Thanks for your payment.</p><p>We successfully charged <strong>$49.00</strong> to your card ending in 4242 for your <strong>AuroraMail Pro</strong> subscription.</p><p>Your plan renews on <strong>June 28, 2026</strong>. A copy of your receipt is attached.</p><p class="signature">— Stripe on behalf of AuroraMail</p>'} ]},
+  { id:6, group:'Yesterday', sender:'Theo Park', email:'theo@vercel.com', subject:'Deploy preview is ready 🚀',
+    snippet:'The latest build is live on a preview URL. Lighthouse is at 99 across the board — nice work.', time:'2:09 PM',
+    unread:true, starred:false, labels:['work'], attachments:[], thread:[
+      {from:'Theo Park', email:'theo@vercel.com', to:'me, design-team', time:'Yesterday, 2:09 PM', html:
+        '<p>The latest build is live 🚀</p><p>Preview URL: <a href="#">aurora-mail-git-redesign.vercel.app</a></p><p>Lighthouse came back at <strong>99 / 100 / 100 / 100</strong>. Accessibility pass is clean too. Ship it whenever you\'re ready.</p><p class="signature">Theo</p>'} ]},
+  { id:7, group:'Yesterday', sender:'Airbnb', email:'noreply@airbnb.com', subject:'Your trip to Lisbon is confirmed',
+    snippet:'Get ready! Your reservation in Alfama is booked for July 14–21. Here are your check-in details.', time:'11:46 AM',
+    unread:false, starred:true, labels:['travel','personal'], attachments:[{name:'itinerary.pdf',size:'1.1 MB',type:'pdf'}],
+    thread:[ {from:'Airbnb', email:'noreply@airbnb.com', to:'me', time:'Yesterday, 11:46 AM', html:
+      '<p>Get ready, James! ✈️</p><p>Your stay in <strong>Alfama, Lisbon</strong> is confirmed for <strong>July 14 – 21, 2026</strong>.</p><p>Check-in is from 3:00 PM. Your host Inês will send the door code the day before. Full itinerary attached.</p>'} ]},
+  { id:8, group:'Yesterday', sender:'Dribbble', email:'hello@dribbble.com', subject:'12 new shots in “Email UI” that you\'ll love',
+    snippet:'Inspiration curated for you: bold gradients, glass surfaces, and gorgeous reading panes.', time:'9:30 AM',
+    unread:false, starred:false, labels:['design'], attachments:[], thread:[
+      {from:'Dribbble', email:'hello@dribbble.com', to:'me', time:'Yesterday, 9:30 AM', html:
+        '<p>Fresh inspiration, just for you 🎨</p><p>This week\'s top shots in <strong>Email UI</strong> feature bold aurora gradients, restrained glassmorphism, and reading panes worth stealing.</p><p><a href="#">Browse the collection →</a></p>'} ]},
+
+  { id:9, group:'This Week', sender:'Sofia Rinaldi', email:'sofia@layerlabs.io', subject:'Quick favour — intro to your design lead?',
+    snippet:'Hey James! Hope you\'re well. Would you be open to introducing me to Maya? We\'re hiring…', time:'Mon',
+    unread:true, starred:false, labels:['personal'], attachments:[], thread:[
+      {from:'Sofia Rinaldi', email:'sofia@layerlabs.io', to:'me', time:'Monday, 3:12 PM', html:
+        '<p>Hey James!</p><p>Hope you\'re doing well. I\'m reaching out with a small favour — would you be open to introducing me to <strong>Maya Chen</strong>? We\'re hiring a senior designer at Layer Labs and I\'d love her perspective (or her, honestly 😄).</p><p>No pressure at all. Coffee on me next time you\'re in town!</p><p class="signature">Sofia</p>'} ]},
+  { id:10, group:'This Week', sender:'AWS', email:'no-reply@aws.amazon.com', subject:'⚠️ Action required: unusual sign-in detected',
+    snippet:'We detected a sign-in to your account from a new device in Frankfurt, DE. If this was you…', time:'Mon',
+    unread:false, starred:false, labels:['urgent'], attachments:[], thread:[
+      {from:'AWS Security', email:'no-reply@aws.amazon.com', to:'me', time:'Monday, 8:04 AM', html:
+        '<p>We detected a new sign-in to your account.</p><p>📍 Frankfurt, DE · Chrome on macOS · Monday 8:01 AM</p><p>If this was you, no action is needed. If not, <a href="#">secure your account</a> immediately and rotate your access keys.</p>'} ]},
+  { id:11, group:'This Week', sender:'Spotify', email:'no-reply@spotify.com', subject:'Your 2026 Wrapped is almost here',
+    snippet:'You\'ve listened to 41,203 minutes this year. We\'ve got something special coming your way.', time:'Sun',
+    unread:false, starred:false, labels:[], attachments:[], thread:[
+      {from:'Spotify', email:'no-reply@spotify.com', to:'me', time:'Sunday, 6:00 PM', html:
+        '<p>What a year of listening 🎧</p><p>You\'ve racked up <strong>41,203 minutes</strong> so far. Your personalised 2026 Wrapped drops soon — get ready to relive it.</p>'} ]},
+  { id:12, group:'This Week', sender:'Hannah Wells', email:'hannah.wells@acmecorp.com', subject:'Contract for review — countersigned',
+    snippet:'Hi James, attaching the countersigned MSA and the SOW for Q3. Let me know if anything looks off.', time:'Sun',
+    unread:false, starred:true, labels:['work','finance'], attachments:[{name:'MSA-signed.pdf',size:'640 KB',type:'pdf'},{name:'SOW-Q3.docx',size:'120 KB',type:'doc'}],
+    thread:[ {from:'Hannah Wells', email:'hannah.wells@acmecorp.com', to:'me', time:'Sunday, 1:18 PM', html:
+      '<p>Hi James,</p><p>Attaching the <strong>countersigned MSA</strong> and the <strong>SOW for Q3</strong>. Everything matches what we discussed on the call.</p><p>Give it a once-over and let me know if anything looks off — otherwise we\'re good to kick off Monday.</p><p class="signature">Hannah Wells<br>Legal Operations · Acme Corp</p>'} ]},
+  { id:13, group:'This Week', sender:'Product Hunt', email:'hello@producthunt.com', subject:'AuroraMail is trending #2 today 🎉',
+    snippet:'Congratulations! Your launch is climbing fast with 412 upvotes and 36 comments so far.', time:'Sat',
+    unread:false, starred:false, labels:[], attachments:[], thread:[
+      {from:'Product Hunt', email:'hello@producthunt.com', to:'me', time:'Saturday, 10:00 AM', html:
+        '<p>🎉 Big news!</p><p><strong>AuroraMail</strong> is currently <strong>#2 Product of the Day</strong> with 412 upvotes and 36 comments. The community loves the bold-but-restrained direction.</p><p><a href="#">See your launch →</a></p>'} ]},
+  { id:14, group:'This Week', sender:'Calendly', email:'notifications@calendly.com', subject:'New event: 30-min intro with Daniel Osei',
+    snippet:'A new meeting has been scheduled for Thursday at 2:30 PM. The invitee left a note for you.', time:'Sat',
+    unread:false, starred:false, labels:['work'], attachments:[], thread:[
+      {from:'Calendly', email:'notifications@calendly.com', to:'me', time:'Saturday, 9:14 AM', html:
+        '<p>A new event has been scheduled ✅</p><p><strong>30-min Intro · Daniel Osei</strong><br>Thursday, June 4 · 2:30 – 3:00 PM</p><p>Note from invitee: “Excited to chat about the design system work — I\'ve been following AuroraMail closely!”</p>'} ]},
+];
+
+/* ============================================================
+   FOLDERS / SCOPES
+   ============================================================ */
+const FOLDERS = [
+  {key:'inbox', icon:'inbox', name:'Inbox', count:6},
+  {key:'starred', icon:'star', name:'Starred', count:3},
+  {key:'sent', icon:'sent', name:'Sent'},
+  {key:'drafts', icon:'draft', name:'Drafts', count:2},
+  {key:'spam', icon:'spam', name:'Spam', count:1},
+  {key:'trash', icon:'trash', name:'Trash'},
+  {key:'all', icon:'all', name:'All Mail'},
+];
+const SCOPES = ['All','Unread','Starred','Has attachment'];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let state = { folder:'inbox', scope:'All', selectedId:2, checked:new Set(), search:'' };
+const $ = s => document.querySelector(s);
+
+/* ============================================================
+   RENDER SIDEBAR
+   ============================================================ */
+function renderNav(){
+  $('#nav').innerHTML = FOLDERS.map(f=>`
+    <button class="nav-item ${f.key===state.folder?'active':''}" data-folder="${f.key}" ${f.key===state.folder?'aria-current="page"':''}>
+      ${ic(f.icon,18)}
+      <span class="label">${f.name}</span>
+      ${f.count?`<span class="count">${f.count}</span>`:''}
+    </button>`).join('');
+  $('#labelsNav').innerHTML = Object.entries(LABELS).map(([k,l])=>`
+    <button class="nav-item" data-label="${k}">
+      <span class="dot" style="background:${l.color};margin:0 1px"></span>
+      <span class="label">${l.name}</span>
+    </button>`).join('');
+}
+
+/* ============================================================
+   RENDER SCOPES
+   ============================================================ */
+function renderScopes(){
+  $('#scopes').innerHTML = SCOPES.map(s=>`<button class="scope ${s===state.scope?'active':''}" data-scope="${s}">${s}</button>`).join('');
+}
+
+/* ============================================================
+   RENDER LIST
+   ============================================================ */
+function filtered(){
+  return EMAILS.filter(e=>{
+    if(state.scope==='Unread' && !e.unread) return false;
+    if(state.scope==='Starred' && !e.starred) return false;
+    if(state.scope==='Has attachment' && !e.attachments.length) return false;
+    if(state.search){
+      const q=state.search.toLowerCase();
+      if(!(e.sender+e.subject+e.snippet).toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+}
+function renderList(){
+  const items = filtered();
+  const groups = {};
+  items.forEach(e=>{ (groups[e.group] ??= []).push(e); });
+  const order = ['Today','Yesterday','This Week'];
+  let html='';
+  order.forEach(g=>{
+    if(!groups[g]) return;
+    html += `<div class="group-head">${g}</div>`;
+    html += groups[g].map(rowHTML).join('');
+  });
+  if(!items.length) html = `<div style="padding:40px;text-align:center;color:var(--text-3)">No messages match your filters.</div>`;
+  const list = $('#list');
+  list.innerHTML = html;
+  list.classList.toggle('selecting', state.checked.size>0);
+}
+function rowHTML(e){
+  const sel = e.id===state.selectedId ? 'selected':'';
+  const checked = state.checked.has(e.id);
+  const labels = e.labels.map(chipFor).join('');
+  const thr = e.thread.length>1 ? `<span class="thread-count">${e.thread.length}</span>` : '';
+  const att = e.attachments.length ? `<span class="attach-ic">${ic('paperclip',14)}</span>`:'';
+  return `
+  <div class="row ${e.unread?'unread':'read'} ${sel} ${checked?'':''} compact-sub" data-id="${e.id}" data-subject="${e.subject.replace(/"/g,'&quot;')}" role="button" tabindex="0" aria-label="Email from ${e.sender}: ${e.subject}">
+    <div class="checkwrap ${checked?'checked':''}" data-check="${e.id}">
+      <div class="cb ${checked?'checked':''}">${ic('check',13)}</div>
+    </div>
+    <div class="ava-wrap">
+      <span class="unread-dot"></span>
+      <div class="avatar" style="${avatarStyle(e.sender)}">${initials(e.sender)}</div>
+    </div>
+    <div class="body">
+      <div class="line1">
+        <span class="sender">${e.sender}</span>
+        ${thr}
+        <span class="time">${e.time}</span>
+      </div>
+      <div class="subject">${e.subject}</div>
+      <div class="snippet">${e.snippet}</div>
+      ${(labels||att)?`<div class="chips">${labels}${att}</div>`:''}
+    </div>
+    <div class="actions">
+      <button class="star ${e.starred?'on':''}" data-star="${e.id}" aria-label="${e.starred?'Unstar':'Star'} email" aria-pressed="${e.starred}">${ic('star',18)}</button>
+      <div class="hover-actions">
+        <button class="ha-btn" data-act="archive" data-id="${e.id}" aria-label="Archive" title="Archive">${ic('archive',16)}</button>
+        <button class="ha-btn" data-act="snooze" data-id="${e.id}" aria-label="Snooze" title="Snooze">${ic('snooze',16)}</button>
+        <button class="ha-btn danger" data-act="delete" data-id="${e.id}" aria-label="Delete" title="Delete">${ic('trash',16)}</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   RENDER READER
+   ============================================================ */
+function attCard(a){
+  const map = {pdf:['#F43F5E','PDF'],doc:['#0EA5E9','DOC'],fig:['#8B5CF6','FIG'],default:['#6B7280','FILE']};
+  const [color] = map[a.type]||map.default;
+  return `<div class="att-card">
+    <div class="att-icon" style="background:linear-gradient(135deg,${color},color-mix(in srgb,${color} 60%, #000))">${ic('paperclip',18)}</div>
+    <div class="att-meta"><div class="att-name">${a.name}</div><div class="att-size">${a.size}</div></div>
+  </div>`;
+}
+function msgHTML(m, isLast, atts){
+  if(m.collapsed){
+    return `<div class="msg collapsed" data-expand>
+      <div class="msg-head">
+        <div class="avatar" style="${avatarStyle(m.from)}">${initials(m.from)}</div>
+        <div class="msg-from"><span class="nm">${m.from}</span></div>
+        <div class="collapsed-snip">${m.snip||''}</div>
+        <div class="msg-meta">${m.time}</div>
+      </div>
+      <div class="msg-body">${m.html}</div>
+    </div>`;
+  }
+  return `<div class="msg">
+    <div class="msg-head">
+      <div class="avatar" style="${avatarStyle(m.from)}">${initials(m.from)}</div>
+      <div class="msg-from">
+        <div class="nm">${m.from}</div>
+        <div class="addr">${m.email}</div>
+        <div class="to">to ${m.to}</div>
+      </div>
+      <div class="msg-meta">${m.time}
+        <button class="icon-btn" style="width:30px;height:30px" aria-label="Reply">${ic('reply',16)}</button>
+        <button class="icon-btn" style="width:30px;height:30px" aria-label="More">${ic('more',16)}</button>
+      </div>
+    </div>
+    <div class="msg-body">${m.html}</div>
+    ${isLast && atts.length?`<div class="attachments">${atts.map(attCard).join('')}</div>`:''}
+  </div>`;
+}
+function renderReader(){
+  const r = $('#reader');
+  const e = EMAILS.find(x=>x.id===state.selectedId);
+  if(!e){
+    r.innerHTML = `<div class="empty"><div class="inner">
+      <div class="glyph">${ic('mailOpen',40)}</div>
+      <h2>Nothing selected</h2>
+      <p>Pick a conversation from the list to read it here. Your inbox is calm and under control.</p>
+      <div class="hintrow"><span><span class="kbd2">↑</span> <span class="kbd2">↓</span> navigate</span><span><span class="kbd2">↵</span> open</span><span><span class="kbd2">C</span> compose</span></div>
+    </div></div>`;
+    return;
+  }
+  const labels = e.labels.map(chipFor).join('');
+  r.innerHTML = `
+    <div class="reader-scroll">
+      <div class="thread-head">
+        <div class="top">
+          <button class="icon-btn back-btn" id="backBtn" aria-label="Back to list">${ic('back',18)}</button>
+          <h1 class="thread-subject">${e.subject}</h1>
+          <button class="star ${e.starred?'on':''}" data-star="${e.id}" aria-label="Star" style="margin-top:4px">${ic('star',22)}</button>
+        </div>
+        ${labels?`<div class="labels">${labels}</div>`:''}
+      </div>
+      <div class="action-bar">
+        <button class="btn btn-primary" id="replyBtn">${ic('reply',16)} Reply</button>
+        <button class="btn">${ic('replyAll',16)} Reply all</button>
+        <button class="btn">${ic('forward',16)} Forward</button>
+        <div class="sep"></div>
+        <button class="icon-btn" data-act="archive" data-id="${e.id}" aria-label="Archive" title="Archive">${ic('archive',18)}</button>
+        <button class="icon-btn" data-act="snooze" data-id="${e.id}" aria-label="Snooze" title="Snooze">${ic('snooze',18)}</button>
+        <button class="icon-btn" data-act="delete" data-id="${e.id}" aria-label="Delete" title="Delete">${ic('trash',18)}</button>
+        <div class="grow"></div>
+        <button class="icon-btn" aria-label="More actions">${ic('more',18)}</button>
+      </div>
+      ${e.thread.map((m,i)=>msgHTML(m, i===e.thread.length-1, e.attachments)).join('')}
+      <div class="reply-box">
+        <div class="reply-head">${ic('reply',15)} <span>Reply to <span class="to-pill">${e.sender}</span></span></div>
+        <textarea placeholder="Write your reply…" aria-label="Reply body"></textarea>
+        <div class="reply-foot">
+          <button class="btn btn-primary" data-send-reply>${ic('sent',16)} Send</button>
+          <div class="fmt-bar">
+            <button title="Bold" aria-label="Bold"><svg class="ic" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M6 4h8a4 4 0 0 1 0 8H6zM6 12h9a4 4 0 0 1 0 8H6z"/></svg></button>
+            <button title="Attach" aria-label="Attach">${ic('paperclip',16)}</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  // mark read
+  if(e.unread){ e.unread=false; renderList(); }
+}
+
+/* ============================================================
+   TOASTS
+   ============================================================ */
+function toast(msg, kind='info', withUndo=false, onUndo){
+  const colors={info:'var(--info)',success:'var(--success)',warning:'var(--warning)',danger:'var(--danger)'};
+  const el=document.createElement('div'); el.className='toast';
+  el.innerHTML=`<span class="ti" style="background:${colors[kind]}">${ic('check',14)}</span><span>${msg}</span>${withUndo?'<button class="undo">Undo</button>':''}`;
+  $('#toasts').appendChild(el);
+  let t=setTimeout(close,3200);
+  function close(){ el.classList.add('out'); setTimeout(()=>el.remove(),220); }
+  if(withUndo) el.querySelector('.undo').onclick=()=>{ clearTimeout(t); close(); onUndo&&onUndo(); };
+}
+
+/* ============================================================
+   THEME
+   ============================================================ */
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  localStorage.setItem('aurora-theme',t);
+  $('#themeIcon').innerHTML = t==='dark' ? I.sun : I.moon;
+}
+function initTheme(){
+  const saved = localStorage.getItem('aurora-theme') || (matchMedia('(prefers-color-scheme: light)').matches?'light':'dark');
+  setTheme(saved);
+}
+
+/* ============================================================
+   COMPOSE
+   ============================================================ */
+function openCompose(){ $('#scrim').classList.add('show'); $('#composer').classList.add('show'); $('#cmpTo').focus(); }
+function closeCompose(){ $('#scrim').classList.remove('show'); $('#composer').classList.remove('show'); }
+
+/* ============================================================
+   EVENTS
+   ============================================================ */
+function selectEmail(id){
+  state.selectedId=id; document.body.classList.add('reading');
+  renderList(); renderReader();
+  $('#reader')?.querySelector('.reader-scroll')?.scrollTo(0,0);
+}
+
+document.addEventListener('click', e=>{
+  const t=e.target;
+  // nav folder
+  const nav=t.closest('[data-folder]');
+  if(nav){ state.folder=nav.dataset.folder; state.selectedId=null; renderNav(); renderList(); renderReader(); document.body.classList.remove('reading'); document.body.classList.remove('menu-open'); return; }
+  const lab=t.closest('[data-label]');
+  if(lab){ toast(`Filtered by “${LABELS[lab.dataset.label].name}”`,'info'); return; }
+  // scope
+  const sc=t.closest('[data-scope]');
+  if(sc){ state.scope=sc.dataset.scope; renderScopes(); renderList(); return; }
+  // checkbox
+  const chk=t.closest('[data-check]');
+  if(chk){ e.stopPropagation(); const id=+chk.dataset.check; state.checked.has(id)?state.checked.delete(id):state.checked.add(id); renderList(); return; }
+  // star
+  const st=t.closest('[data-star]');
+  if(st){ e.stopPropagation(); const em=EMAILS.find(x=>x.id===+st.dataset.star); em.starred=!em.starred; renderList(); if(state.selectedId===em.id) renderReader(); toast(em.starred?'Added star':'Removed star', em.starred?'warning':'info'); return; }
+  // hover/action bar acts
+  const act=t.closest('[data-act]');
+  if(act){ e.stopPropagation(); const id=+act.dataset.id; const a=act.dataset.act; doAction(a,id); return; }
+  // expand collapsed
+  const ex=t.closest('[data-expand]');
+  if(ex){ ex.classList.remove('collapsed'); return; }
+  // open row
+  const row=t.closest('.row');
+  if(row){ selectEmail(+row.dataset.id); return; }
+});
+
+function doAction(a,id){
+  const labels={archive:['Archived',' success'],delete:['Moved to Trash','danger'],snooze:['Snoozed until tomorrow','info']};
+  const idx=EMAILS.findIndex(x=>x.id===id); if(idx<0) return;
+  const removed=EMAILS[idx]; EMAILS.splice(idx,1);
+  if(state.selectedId===id){ state.selectedId=null; document.body.classList.remove('reading'); }
+  renderList(); renderReader();
+  const [msg,kind]=labels[a];
+  toast(msg, kind.trim(), true, ()=>{ EMAILS.splice(idx,0,removed); renderList(); });
+}
+
+$('#list').addEventListener('keydown', e=>{
+  const row=e.target.closest('.row'); if(!row) return;
+  if(e.key==='Enter'||e.key===' '){ e.preventDefault(); selectEmail(+row.dataset.id); }
+});
+
+$('#collapseBtn').onclick=()=>$('#app').classList.toggle('collapsed');
+$('#themeToggle').onclick=()=>setTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark');
+$('#densComfort').onclick=()=>{document.documentElement.setAttribute('data-density','comfortable');$('#densComfort').classList.add('active');$('#densCompact').classList.remove('active');};
+$('#densCompact').onclick=()=>{document.documentElement.setAttribute('data-density','compact');$('#densCompact').classList.add('active');$('#densComfort').classList.remove('active');};
+$('#composeBtn').onclick=openCompose;
+$('#composeClose').onclick=closeCompose;
+$('#composeTrash').onclick=()=>{closeCompose();toast('Draft discarded','danger');};
+$('#scrim').onclick=closeCompose;
+$('#ccToggle').onclick=()=>{ $('#ccField').hidden=!$('#ccField').hidden; $('#bccField').hidden=!$('#bccField').hidden; };
+$('#sendBtn').onclick=()=>{ closeCompose(); toast('Message sent','success'); };
+$('#menuToggle').onclick=()=>document.body.classList.toggle('menu-open');
+
+// delegated reader buttons
+$('#reader').addEventListener('click', e=>{
+  if(e.target.closest('#backBtn')){ document.body.classList.remove('reading'); }
+  if(e.target.closest('#replyBtn')){ $('#reader').querySelector('.reply-box textarea')?.focus(); $('#reader').querySelector('.reply-box')?.scrollIntoView({behavior:'smooth',block:'center'}); }
+  if(e.target.closest('[data-send-reply]')){ const ta=$('#reader').querySelector('.reply-box textarea'); if(ta){ta.value='';} toast('Reply sent','success'); }
+});
+
+// search
+$('#searchInput').addEventListener('input', e=>{ state.search=e.target.value; renderList(); });
+document.addEventListener('keydown', e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){ e.preventDefault(); $('#searchInput').focus(); $('#searchInput').select(); }
+  if(e.key==='Escape'){ closeCompose(); }
+  if(e.key.toLowerCase()==='c' && !/input|textarea/i.test(document.activeElement.tagName)){ openCompose(); }
+});
+
+/* ============================================================
+   BOOT — with brief skeleton for "alive" feel
+   ============================================================ */
+function skeleton(){
+  $('#list').innerHTML = Array.from({length:7}).map(()=>`
+    <div class="skel-row"><div class="skel circ"></div>
+      <div><div class="skel" style="height:13px;width:42%;margin-bottom:8px"></div>
+      <div class="skel" style="height:11px;width:75%;margin-bottom:6px"></div>
+      <div class="skel" style="height:11px;width:55%"></div></div></div>`).join('');
+}
+initTheme();
+renderNav();
+renderScopes();
+skeleton();
+setTimeout(()=>{ renderList(); renderReader(); }, 650);
+</script>
+</body>
+</html>

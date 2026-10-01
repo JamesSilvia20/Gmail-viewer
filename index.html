@@ -260,6 +260,10 @@
   }
   .prov-btn:hover { border-color: var(--line-2); background: var(--hover); }
   .prov-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .prov-btn.wide { grid-column: 1 / -1; }
+  .menu-link { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px;
+    font-size: 13px; color: var(--text-3); text-decoration: none; }
+  .menu-link:hover { background: var(--hover); color: var(--text); }
 
   /* ───────────────────────── LIST PANE ───────────────────────── */
   .list-pane { display: flex; flex-direction: column; min-height: 0; min-width: 0; border-right: 1px solid var(--line); }
@@ -412,6 +416,26 @@
   .cf .toggles button { font-size: 12.5px; font-weight: 550; color: var(--text-3); padding: 4px 7px; border-radius: 6px; }
   .cf .toggles button:hover { color: var(--text); background: var(--hover); }
   .compose textarea { flex: 1; min-height: 120px; padding: 16px 18px; background: none; border: 0; outline: none; resize: none; line-height: 1.65; font-size: 14.5px; }
+  .ai-toggle {
+    display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; margin-right: 4px;
+    border-radius: 999px; font-size: 12.5px; font-weight: 600; color: var(--accent-text);
+    background: var(--accent-soft); transition: background .15s, color .15s;
+  }
+  .ai-toggle:hover, .ai-toggle[aria-expanded="true"] { background: var(--accent); color: #fff; }
+  .ai-bar { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px 12px 18px; flex-shrink: 0;
+    border-bottom: 1px solid var(--line); background: linear-gradient(180deg, var(--accent-soft), transparent); }
+  .ai-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .ai-bar input, .ai-bar select {
+    height: 36px; border-radius: 9px; border: 1px solid var(--line-2); background: var(--input); outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .ai-bar input { flex: 1; min-width: 0; padding: 0 12px; }
+  .ai-bar input::placeholder { color: var(--text-3); }
+  .ai-bar select { padding: 0 8px; color: var(--text); cursor: pointer; }
+  .ai-bar input:focus, .ai-bar select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .ai-btn { height: 32px; padding: 0 12px; font-size: 13px; }
+  .ai-status { flex: 1; min-width: 0; font-size: 12.5px; color: var(--text-3); }
+  .ai-status.err { color: var(--danger); }
   .compose-foot { display: flex; align-items: center; gap: 10px; padding: 12px 12px 12px 16px; border-top: 1px solid var(--line); flex-shrink: 0; }
   .compose-foot .hint { font-size: 12px; color: var(--text-3); display: inline-flex; gap: 4px; align-items: center; }
   .compose-foot .spacer { flex: 1; }
@@ -483,7 +507,7 @@
   .google-btn:hover { transform: translateY(-1px); box-shadow: 0 14px 32px -12px rgba(0, 0, 0, .5); }
   .divider { display: flex; align-items: center; gap: 12px; margin: 22px 0 16px; color: var(--text-3); font-size: 12.5px; }
   .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--line-2); }
-  .gate .prov-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0; }
+  .gate .prov-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 0; }
   .gate .prov-btn { height: 44px; justify-content: center; border-radius: 12px; border-color: var(--line-2); }
   .gate-foot { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 26px; color: var(--text-3); font-size: 12.5px; }
 
@@ -565,6 +589,7 @@
     .msg-frame { border-radius: 10px; }
     .compose { inset: 0; width: 100%; height: 100%; border-radius: 0; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
     .compose-foot .hint { display: none; }
+    .ai-toggle { padding: 0 9px; }
     .fab { display: grid; }
     .app.reading .fab { display: none; }
     .search .kbd { display: none; }
@@ -609,6 +634,8 @@
   <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></symbol>
   <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
   <symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/></symbol>
   <symbol id="i-search-x" viewBox="0 0 24 24"><path d="m13.5 8.5-5 5"/><path d="m8.5 8.5 5 5"/><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
 </svg>
 
@@ -681,7 +708,7 @@
   <div class="gate-card">
     <div class="brand-mark"><svg class="ic" aria-hidden="true" style="stroke-width:2"><use href="#i-mail"/></svg></div>
     <h1>All your inboxes,<br>one calm place.</h1>
-    <p class="lede">Read, search, write and organize mail from Gmail, iCloud, AOL and Yahoo, side by side.</p>
+    <p class="lede">Read, search, write and organize mail from Gmail, Google Workspace, iCloud, AOL and Yahoo, side by side.</p>
     <a class="google-btn" href="/api/auth">
       <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
       Continue with Google
@@ -691,6 +718,7 @@
       <button class="prov-btn" data-action="connect" data-provider="icloud"><span class="prov-dot" style="background:#3b9dff"></span>iCloud</button>
       <button class="prov-btn" data-action="connect" data-provider="aol"><span class="prov-dot" style="background:#3d5afe"></span>AOL</button>
       <button class="prov-btn" data-action="connect" data-provider="yahoo"><span class="prov-dot" style="background:#7e1fff"></span>Yahoo</button>
+      <button class="prov-btn" data-action="connect" data-provider="gmail"><span class="prov-dot" style="background:#ea4335"></span>Workspace</button>
     </div>
     <div class="gate-foot">
       <svg class="ic xs" aria-hidden="true"><use href="#i-lock"/></svg>
@@ -703,6 +731,9 @@
 <section class="compose" id="compose" role="dialog" aria-labelledby="compose-title" hidden>
   <div class="compose-head">
     <h2 id="compose-title">New message</h2>
+    <button class="ai-toggle" id="ai-toggle" data-action="toggle-ai" aria-expanded="false" aria-controls="ai-bar">
+      <svg class="ic xs" aria-hidden="true"><use href="#i-sparkles"/></svg> Write with AI
+    </button>
     <button class="icon-btn sm" data-action="close-compose" aria-label="Close">
       <svg class="ic sm" aria-hidden="true"><use href="#i-x"/></svg>
     </button>
@@ -718,6 +749,27 @@
   <div class="cf" id="c-cc-row" hidden><label for="c-cc">Cc</label><input id="c-cc" type="text" spellcheck="false"></div>
   <div class="cf" id="c-bcc-row" hidden><label for="c-bcc">Bcc</label><input id="c-bcc" type="text" spellcheck="false"></div>
   <div class="cf"><label for="c-subject">Subject</label><input id="c-subject" type="text"></div>
+  <div class="ai-bar" id="ai-bar" hidden>
+    <div class="ai-row">
+      <input id="ai-instruction" type="text" autocomplete="off" aria-label="Tell AI what to write"
+        placeholder="Tell AI what to write… e.g. “decline politely, suggest next week”">
+      <select id="ai-tone" aria-label="Tone">
+        <option value="professional">Professional</option>
+        <option value="friendly">Friendly</option>
+        <option value="concise">Concise</option>
+        <option value="warm">Warm</option>
+        <option value="formal">Formal</option>
+        <option value="persuasive">Persuasive</option>
+      </select>
+    </div>
+    <div class="ai-row">
+      <button class="btn primary ai-btn" id="ai-generate-btn" data-action="ai-generate">
+        <svg class="ic xs" aria-hidden="true"><use href="#i-sparkles"/></svg> Generate
+      </button>
+      <button class="btn ai-btn" id="ai-improve-btn" data-action="ai-improve">Improve draft</button>
+      <span class="ai-status truncate" id="ai-status" role="status"></span>
+    </div>
+  </div>
   <textarea id="c-body" aria-label="Message body" placeholder="Write your message…"></textarea>
   <div class="compose-foot">
     <button class="btn primary" id="send-btn" data-action="send">
@@ -799,6 +851,11 @@ const FOLDERS = [
 
 const PROVIDERS = {
   google: { label: 'Gmail', color: '#ea4335' },
+  gmail: {
+    label: 'Gmail / Workspace', color: '#ea4335',
+    hint: 'For Gmail or a school/work Google Workspace account, use your full email and a Google app password (not your normal password). 2-Step Verification must be on, and your admin must allow IMAP and app passwords.',
+    help: 'https://support.google.com/mail/answer/185833', helpText: 'How to create a Google app password',
+  },
   icloud: {
     label: 'iCloud', color: '#3b9dff',
     hint: 'Use your iCloud email and an app-specific password — your Apple ID password won’t work. Create one at appleid.apple.com under Sign-In & Security.',
@@ -1094,11 +1151,14 @@ function renderAccountMenu() {
     <div class="menu-sep"></div>
     <div class="menu-label">Add account</div>
     <div class="prov-grid">
-      <a class="prov-btn" href="/api/auth"><span class="prov-dot" style="background:${PROVIDERS.google.color}"></span>Gmail</a>
+      <a class="prov-btn" href="/api/auth"><span class="prov-dot" style="background:${PROVIDERS.google.color}"></span>Google</a>
       <button class="prov-btn" data-action="connect" data-provider="icloud"><span class="prov-dot" style="background:${PROVIDERS.icloud.color}"></span>iCloud</button>
       <button class="prov-btn" data-action="connect" data-provider="aol"><span class="prov-dot" style="background:${PROVIDERS.aol.color}"></span>AOL</button>
       <button class="prov-btn" data-action="connect" data-provider="yahoo"><span class="prov-dot" style="background:${PROVIDERS.yahoo.color}"></span>Yahoo</button>
-    </div>`;
+      <button class="prov-btn wide" data-action="connect" data-provider="gmail"><span class="prov-dot" style="background:${PROVIDERS.gmail.color}"></span>Gmail / Workspace (app password)</button>
+    </div>
+    <div class="menu-sep"></div>
+    <a class="menu-link" href="/api/auth?show=1">${icon('key', 'sm')}Get refresh token for setup</a>`;
 }
 
 function toggleAccountMenu(force) {
@@ -1820,6 +1880,9 @@ async function openCompose(opts = {}) {
   $('#c-cc-toggle').hidden = !!opts.cc;
   $('#c-bcc-toggle').hidden = false;
   setComposeStatus('');
+  setAiOpen(false);
+  $('#ai-instruction').value = '';
+  setAiStatus('');
   $('#send-btn').disabled = false;
   $('#compose').hidden = false;
   $('#compose').dataset.pristine = composeSnapshot();
@@ -1922,6 +1985,69 @@ function startReply(kind) {
     references: [m.references, m.messageId].filter(Boolean).join(' '),
     focusBody: true,
   });
+}
+
+// ═════════════════════════ AI WRITING ASSISTANT (Gemini via /api/ai) ═════════════════════════
+let aiBusy = false;
+function setAiOpen(open) {
+  $('#ai-bar').hidden = !open;
+  $('#ai-toggle').setAttribute('aria-expanded', String(open));
+  if (open) setTimeout(() => $('#ai-instruction').focus(), 20);
+}
+function setAiStatus(text, err = false) {
+  const el = $('#ai-status');
+  el.textContent = text;
+  el.title = text;
+  el.classList.toggle('err', err);
+}
+
+async function aiGenerate(mode) {
+  if (aiBusy) return;
+  const f = composeFields();
+  const instruction = $('#ai-instruction').value.trim();
+  const tone = $('#ai-tone').value;
+  const draft = f.body.value;
+  // Replies are pre-filled with quoted text, so "Generate" writes a reply to it.
+  if (mode === 'compose' && state.compose) mode = 'reply';
+  if (mode === 'compose' && !instruction) { setAiStatus('Tell the assistant what to write first.', true); $('#ai-instruction').focus(); return; }
+  if (mode === 'improve' && !draft.trim()) { setAiStatus('Write a draft to improve, or use Generate.', true); return; }
+
+  const genBtn = $('#ai-generate-btn'), impBtn = $('#ai-improve-btn');
+  const activeBtn = mode === 'improve' ? impBtn : genBtn;
+  const original = activeBtn.innerHTML;
+  aiBusy = true;
+  genBtn.disabled = impBtn.disabled = true;
+  activeBtn.textContent = mode === 'improve' ? 'Improving…' : 'Writing…';
+  setAiStatus('Gemini is drafting your email…');
+  try {
+    const res = await fetch('/api/ai', {
+      method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode, instruction, draft, to: f.to.value.trim(), subject: f.subject.value.trim(), tone }),
+    });
+    const data = await res.json().catch(() => ({ error: res.statusText || 'Request failed' }));
+    if (!res.ok) throw new Error(data.error || res.statusText || 'Request failed');
+    if (mode === 'improve' || mode === 'reply') {
+      // Keep any quoted original message that follows the user's text.
+      const quoteIdx = draft.search(/\n*On .+ wrote:/);
+      const fwdIdx = draft.search(/\n*---------- Forwarded message ---------/);
+      const cut = [quoteIdx, fwdIdx].filter(i => i > -1).sort((a, b) => a - b)[0];
+      const tail = cut !== undefined ? draft.slice(cut).replace(/^\n+/, '') : '';
+      f.body.value = data.text + (tail ? '\n\n' + tail : '');
+    } else {
+      f.body.value = data.text;
+    }
+    setAiStatus('Drafted with ' + (data.model || 'Gemini') + ' — edit as you like.');
+    $('#ai-instruction').value = '';
+    f.body.focus();
+    f.body.setSelectionRange(0, 0);
+    f.body.scrollTop = 0;
+  } catch (e) {
+    setAiStatus(e.message, true);
+  } finally {
+    aiBusy = false;
+    genBtn.disabled = impBtn.disabled = false;
+    activeBtn.innerHTML = original;
+  }
 }
 
 // ═════════════════════════ CONNECT (IMAP) ═════════════════════════
@@ -2077,6 +2203,9 @@ function handleAction(el, ev) {
     case 'close-compose': closeCompose(); break;
     case 'discard': closeCompose(); break;
     case 'send': sendEmail(); break;
+    case 'toggle-ai': setAiOpen($('#ai-bar').hidden); break;
+    case 'ai-generate': aiGenerate('compose'); break;
+    case 'ai-improve': aiGenerate('improve'); break;
     case 'show-cc': $('#c-cc-row').hidden = false; el.hidden = true; $('#c-cc').focus(); break;
     case 'show-bcc': $('#c-bcc-row').hidden = false; el.hidden = true; $('#c-bcc').focus(); break;
     case 'toast-action': {
@@ -2117,6 +2246,9 @@ function bindEvents() {
     syncSearchUi();
     clearTimeout(searchTimer);
     searchTimer = setTimeout(runSearch, 450);
+  });
+  $('#ai-instruction').addEventListener('keydown', ev => {
+    if (ev.key === 'Enter' && !ev.metaKey && !ev.ctrlKey) { ev.preventDefault(); aiGenerate('compose'); }
   });
   search.addEventListener('keydown', ev => {
     if (ev.key === 'Enter') { ev.preventDefault(); runSearch(); }

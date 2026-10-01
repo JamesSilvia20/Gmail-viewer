@@ -65,32 +65,32 @@ export default async function handler(req, res) {
 
   // ── Account management actions (no Gmail call needed) ──
   if (action === 'accounts') {
-    const accounts = getAccounts(req);
+    const accounts = await getAccounts(req);
     const env = !accounts.length && process.env.GMAIL_REFRESH_TOKEN ? [{ email: process.env.GMAIL_EMAIL || 'Connected account', name: '', kind: 'google', env: true }] : [];
-    const list = accounts.length ? accounts.map(a => ({ email: a.email, name: a.name, kind: a.kind || 'google', service: a.service })) : env;
-    return res.json({ accounts: list, active: getActiveEmail(req) || (list[0] && list[0].email) || null });
+    const list = accounts.length ? accounts.map(a => ({ email: a.email, name: a.name, kind: a.kind || 'google', service: a.service, env: !!a.env })) : env;
+    return res.json({ accounts: list, active: (await getActiveEmail(req)) || (list[0] && list[0].email) || null });
   }
 
   if (action === 'switch') {
-    setActive(res, body.email || query.email);
+    await setActive(res, body.email || query.email);
     return res.json({ ok: true });
   }
 
   if (action === 'signout') {
     const target = body.email || query.email;
-    let accounts = getAccounts(req);
+    let accounts = await getAccounts(req);
     if (target) {
       accounts = accounts.filter(a => a.email !== target);
-      saveAccounts(res, accounts);
-      if (getActiveEmail(req) === target) setActive(res, accounts[0]?.email || '');
+      await saveAccounts(res, accounts);
+      if ((await getActiveEmail(req)) === target) await setActive(res, accounts[0]?.email || '');
     } else {
-      clearAccountCookies(res);
+      await clearAccountCookies(res);
     }
     return res.json({ ok: true, accounts: accounts.map(a => ({ email: a.email, name: a.name })) });
   }
 
   // ── Everything else needs an authenticated account ──
-  const account = resolveAccount(req);
+  const account = await resolveAccount(req);
   if (!account) return res.status(401).json({ error: 'Not signed in', needAuth: true });
 
   // Non-Gmail providers (iCloud, AOL, Yahoo) go through IMAP/SMTP.

@@ -8,6 +8,27 @@ function errorPage(res, title, detail) {
   </body></html>`);
 }
 
+function escHtml(s) {
+  return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// One-time setup page: shows the refresh token + a ready-to-paste MAIL_ACCOUNTS entry.
+function tokenPage(res, email, name, refreshToken) {
+  const entry = JSON.stringify({ kind: 'google', email, name, refreshToken });
+  res.setHeader('Content-Type', 'text/html');
+  res.send(`<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Refresh token</title></head>
+  <body style="font-family:system-ui,sans-serif;background:#0A0A0F;color:#ECECF4;padding:40px;max-width:760px;margin:0 auto;line-height:1.6">
+    <h2 style="font-weight:800;letter-spacing:-.02em;background:linear-gradient(135deg,#6366F1,#D946EF);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;display:inline-block">Refresh token for ${escHtml(email)}</h2>
+    <p style="color:#9A9AB0">Add this account to <code style="color:#A78BFA">MAIL_ACCOUNTS</code> in your Vercel environment variables. It will then appear on every device with no storage. Keep this token secret.</p>
+    <p style="color:#9A9AB0;margin-top:18px;font-weight:600">Ready-to-paste entry (one element of the JSON array):</p>
+    <textarea readonly onclick="this.select()" style="width:100%;min-height:120px;background:#16161F;color:#ECECF4;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:14px;font-family:ui-monospace,monospace;font-size:13px;resize:vertical">${escHtml(entry)}</textarea>
+    <p style="color:#5E5E76;font-size:13px;margin-top:10px">Raw refresh token:</p>
+    <textarea readonly onclick="this.select()" style="width:100%;min-height:60px;background:#16161F;color:#9A9AB0;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px;font-family:ui-monospace,monospace;font-size:12px">${escHtml(refreshToken)}</textarea>
+    <p style="margin-top:24px"><a href="/" style="color:#A78BFA;text-decoration:none;font-weight:600">← Back to inbox</a></p>
+  </body></html>`);
+}
+
 export default async function handler(req, res) {
   const { code, error } = req.query;
 
@@ -47,14 +68,17 @@ export default async function handler(req, res) {
     const email = profile.email || '';
     const name = profile.name || '';
 
-    const accounts = getAccounts(req);
+    // One-time setup helper: show the refresh token to hard-code, don't save.
+    if (req.query.state === 'showtoken') return tokenPage(res, email, name, refreshToken);
+
+    const accounts = await getAccounts(req);
     const idx = accounts.findIndex(a => a.email === email);
     const entry = { kind: 'google', email, name, refreshToken };
     if (idx > -1) accounts[idx] = entry;
     else accounts.push(entry);
 
-    saveAccounts(res, accounts);
-    setActive(res, email);
+    await saveAccounts(res, accounts);
+    await setActive(res, email);
 
     res.setHeader('Content-Type', 'text/html');
     res.send(`<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=/"></head>

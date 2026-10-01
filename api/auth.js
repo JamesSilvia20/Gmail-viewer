@@ -13,5 +13,9 @@ export default function handler(req, res) {
     prompt: 'consent select_account',
   });
 
+  // ?show=1 → after sign-in, display the refresh token for hard-coding into
+  // MAIL_ACCOUNTS instead of saving the account. (one-time setup helper)
+  if (req.query && (req.query.show || req.query.token)) params.append('state', 'showtoken');
+
   res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
 }

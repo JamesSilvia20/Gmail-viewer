@@ -6,6 +6,11 @@ import nodemailer from 'nodemailer';
 import { simpleParser } from 'mailparser';
 
 export const IMAP_PRESETS = {
+  gmail: {
+    label: 'Gmail / Google Workspace',
+    imap: { host: 'imap.gmail.com', port: 993, secure: true },
+    smtp: { host: 'smtp.gmail.com', port: 465, secure: true },
+  },
   icloud: {
     label: 'iCloud',
     imap: { host: 'imap.mail.me.com', port: 993, secure: true },
